@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Fundos</title>
+</head>
+<body>
+
+<h1>Cadastro de Fundos</h1>
+
+
+<form action="#" method="POST">
+
+
+    <input name="id" value="{{ fundo['_id'] }}">
+
+    <label for="fundo">Codigo do Fundo</label>
+    <input name="cd_fundo" type="text" id="fundo" value="{{ fundo['codigo']}}">
+
+    <label for="fundo">Fundo</label>
+    <select name="tipoCota" type="text" id="fundo">
+        <option value="1">UNICA</option>
+        <option value="2">SENIOR</option>
+        <option value="3">MEZANINO</option>
+        <option value="4">SUBORDINADA</option>
+        <option value="5">OUTRAS</option>
+    </select>
+
+
+    <input type="submit" value="Concluir Edição"/>
+
+
+</form>
+
+
+</body>
+</html>
