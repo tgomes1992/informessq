@@ -5,6 +5,7 @@ from InformesLegais.db import db
 from InformesLegais.tasks import extrair_posicao_jcot_unique
 import pandas as pd
 from GERACAO_5401 import Extracao_Quantidades_O2 , client
+from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 from datetime import datetime
 from ..tasks import extrair_posicao_o2
 
@@ -42,8 +43,19 @@ def atualizar_ativos_02():
 @extracoes.route("/extrair_posicao")
 def extrair_posicoes_o2():
     '''extracao de posição'''
+    api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
+
+    headers = {
+        'Authorization': f'Bearer {api.get_token()}',
+        'Content-Type': 'application/json'
+    }
+    #consulta de fundos que possuem código jcot
+
     fundos  = db.ativoso2.find({"cd_jcot": { "$ne": "Sem Código" }})
+    #criando as tasks para baixar as posições do o2
     for item in fundos:
-        extrair_posicao_o2.delay(item)
+        item['_id'] = str(item['_id'])
+        item['data'] = '2024-06-28'
+        extrair_posicao_o2.delay(item , headers)
     
     return jsonify({"messsage": "Posiçoes Extraídas"})

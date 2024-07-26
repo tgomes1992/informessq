@@ -1,5 +1,7 @@
 
 from pymongo import MongoClient
+# from .extracao_5401_quantidades_o2 import o2Api
+
 
 client = MongoClient('mongodb://localhost:27017/')
 

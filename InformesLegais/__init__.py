@@ -1,6 +1,7 @@
 from flask import Flask
 from .cadastros_bp import cadastros
 from .extracoes_bp import extracoes
+from .geracaoInformes_bp import geracao_informes_bp
 import os
 
 from celery import Celery
@@ -21,6 +22,7 @@ def create_app():
     app = Flask(__name__)
     app.register_blueprint(cadastros)
     app.register_blueprint(extracoes)
+    app.register_blueprint(geracao_informes_bp)
 
     @app.route('/')
     def hello_world():  # put application's code here
