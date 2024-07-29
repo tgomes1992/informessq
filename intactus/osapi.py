@@ -123,7 +123,7 @@ class o2Api():
 
 
 
-    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot , cota , headers ):
+    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot ,  headers ):
 
         # headers = {
         #         'Authorization': f'Bearer {self.get_token()}' ,
@@ -139,9 +139,7 @@ class o2Api():
 
         df['cd_escritural'] =  codigoInstrumentoFinanceiro
         df['cd_jcot'] = cd_jcot
-        df['cota'] = cota
-        print (df.head())
-        # df['pl'] = df['quantidadeTotalDepositada'] * df['cota']
+        # df['cota'] = cota
 
         return df
 

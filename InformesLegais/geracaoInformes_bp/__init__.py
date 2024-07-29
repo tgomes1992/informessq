@@ -12,7 +12,7 @@ geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/gera
 def gerar_informe_5401():
 
 
-    gerador_fundo_5401 = Fundo5401('43121036000136')
+    gerador_fundo_5401 = Fundo5401('26286853000125')
 
     documento_5401 = Documento5401()
 
