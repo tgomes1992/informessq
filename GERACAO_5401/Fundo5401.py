@@ -5,6 +5,7 @@ from xml.dom import minidom
 from .CotasTipo import CotasTipo
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+from ValidadorCpfCnpj import ValidadorCpf , ValidadorCnpj
 
 class Fundo5401():
 
@@ -44,13 +45,26 @@ class Fundo5401():
         except Exception as e :
             return pd.DataFrame()
 
+    def formatar_cotista(self, cotista): 
+
+        if ValidadorCpf(str(cotista)).validarCpf():
+            return str(cotista).zfill(11)
+        elif ValidadorCnpj(str(cotista)).validarCnpj():
+            return str(cotista).zfill(14)
+        else:
+            return str(cotista)
+
     def criar_cotistas_unico(self, cotista):
     #todo criar função para validar o tipo de cotista e a sua respectiva classificação
+        
+        #todo lógica de validação do tipo de cotista
+    
+    
         try:
-            dados_formatado = cotista["cpfcnpjCotista"]
+            dados_formatado = self.formatar_cotista(cotista["cpfcnpjCotista"])
             cotista_elemento = ET.Element("cotista")
-            cotista_elemento.set("tipoPessoa", '1')
-            cotista_elemento.set("identificacao", cotista["cpfcnpjCotista"])
+            cotista_elemento.set("tipoPessoa", '1') #todo ajustar o tipo de pessoa pois está mockado
+            cotista_elemento.set("identificacao", dados_formatado)
 
             if cotista['cpfcnpjCotista'] == '09358105000191':
                 cotista_elemento.set('classificacao', str(3))

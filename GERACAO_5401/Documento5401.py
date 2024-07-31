@@ -39,11 +39,20 @@ class Documento5401:
  
         return base
  
+ 
+    def consolidar_arquivo(self):
+        self.documento_5401.append(self.elemento_fundos)
+        
+ 
+    def retornar_arquivo_5401_completo(self):
+        self.consolidar_arquivo()
+        return self.documento_5401
+ 
 
     def escrever_arquivo(self):
         file_name = "teste.xml"
         
-        self.documento_5401.append(self.elemento_fundos)
+        self.consolidar_arquivo()
  
         xml_string = minidom.parseString(ET.tostring(self.documento_5401)).toprettyxml(indent=" ")
 
