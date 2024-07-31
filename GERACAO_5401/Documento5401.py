@@ -8,6 +8,10 @@ from xml.dom import minidom
 class Documento5401:
 
 
+    def __init__(self):
+        self.documento_5401 = self.documento_5401()
+        self.elemento_fundos = self.criar_fundos()
+
 
     def criar_documento_inicial(self):
         documento  = ET.Element("documento")
@@ -19,24 +23,29 @@ class Documento5401:
         documento.set("emailResponsavel" , "thiago.menezes@oliveiratrust.com.br")
         documento.set("telefoneResponsavel" , "02135140000")
         return documento
-    def criar_fundos(self , fundos_xml):
+    
+    def criar_fundos(self):
         fundos = ET.Element("fundos")
-        fundos.append(fundos_xml)
         return fundos
+    
+    
+    def adicionar_fundos(self, fundo):
+        self.elemento_fundos.append(fundo)
+    
+    
 
-    def documento_5401(self ,  fundo_xml):
+    def documento_5401(self):
         base = self.criar_documento_inicial()
-        fundos = self.criar_fundos(fundo_xml)
-
-        base.append(fundos)
-
+ 
         return base
+ 
 
-
-    def escrever_arquivo(self , documento):
+    def escrever_arquivo(self):
         file_name = "teste.xml"
-
-        xml_string = minidom.parseString(ET.tostring(documento)).toprettyxml(indent=" ")
+        
+        self.documento_5401.append(self.elemento_fundos)
+ 
+        xml_string = minidom.parseString(ET.tostring(self.documento_5401)).toprettyxml(indent=" ")
 
         with open(f'{file_name}', "w") as file:
             file.write(xml_string)

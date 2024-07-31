@@ -34,13 +34,20 @@ class CotasTipo():
             if item in cotas_trocaveis:
                 df_cota = df[df['tipo'] == item]
                 contagem = 1
-                for item in df_cota.to_dict("records"):
 
-                    item['tipo'] = f"{item['tipo']}.{str(contagem).zfill(2)}"
-                    dataframe_ajustado.append(item)
-                    contagem += 1
+
+                for item in df_cota.to_dict("records"):
+                    if len(df_cota.to_dict("records")) == 1:
+                        item['tipo'] = f"{item['tipo']}"
+                        dataframe_ajustado.append(item)
+                    else:
+                        item['tipo'] = f"{item['tipo']}.{str(contagem).zfill(2)}"
+                        dataframe_ajustado.append(item)
+                        contagem += 1
             else:
-                dataframe_ajustado.append(item)
+
+                for cota in df.to_dict("records"):
+                    dataframe_ajustado.append(cota)
 
 
         return pd.DataFrame.from_dict(dataframe_ajustado)
@@ -53,10 +60,6 @@ class CotasTipo():
         df = pd.DataFrame(cotas)
         novo_df = self.atribuir_tipos_de_cota(df)
 
-        return novo_df
-
-
-
-
+        return novo_df[['codigo' , 'tipo']]
 
 
