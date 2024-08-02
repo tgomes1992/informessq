@@ -123,12 +123,8 @@ class o2Api():
 
 
 
-    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot ,  headers ):
+    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot ,  headers , cota ):
 
-        # headers = {
-        #         'Authorization': f'Bearer {self.get_token()}' ,
-        #         'Content-Type': 'application/json'
-        # }
         url = f"https://escriturador.oliveiratrust.com.br/intactus/escriturador/api/Posicao/obterpordatainvestidorinstrumentofinanceiro?codigoInstrumentoFinanceiro={codigoInstrumentoFinanceiro}&data={data}"
         
         request =  requests.get(url,headers=headers)
@@ -139,7 +135,7 @@ class o2Api():
 
         df['cd_escritural'] =  codigoInstrumentoFinanceiro
         df['cd_jcot'] = cd_jcot
-        # df['cota'] = cota
+        df['valor_cota'] = cota
 
         return df
 

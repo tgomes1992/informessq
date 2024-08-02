@@ -31,14 +31,28 @@ def extrair_posicao_jcot_unique(fundo):
     return {"message": f"Extração do fundo {fundo['codigo']} Concluída"}
 
 
+def get_valor_de_cota_jcot(ativo_o2):
+    try:          
+        valor_de_cota = db.posicoesjcot.find_one({"fundo": str(ativo_o2['cd_jcot']) , "data": str(ativo_o2['data'])  })
+        return valor_de_cota['valor_cota']
+    except Exception as e:
+        print (e)        
+        return '0'
+
+
 @celery_app.task(name="Extrair Posições O2")
 def extrair_posicao_o2(ativo_o2 , header):
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
-    df_posicao = api.get_posicao( ativo_o2['data'] , ativo_o2['descricao'] ,  ativo_o2['cd_jcot'] , header)
+
 
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
     with app.app_context():
+        
+        valor_de_cota = get_valor_de_cota_jcot(ativo_o2)
+        
+        df_posicao = api.get_posicao( ativo_o2['data'] , ativo_o2['descricao'] ,  ativo_o2['cd_jcot'] , header , valor_de_cota)
+
         if not df_posicao.empty:
             db.posicoeso2.insert_many(df_posicao.to_dict('records'))
 

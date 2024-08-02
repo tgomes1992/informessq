@@ -51,7 +51,12 @@ def extrair_posicoes_o2():
     }
     #consulta de fundos que possuem código jcot
 
+    db.posicoeso2.delete_many({})
+
     fundos  = db.ativoso2.find({"cd_jcot": { "$ne": "Sem Código" }})
+    
+    # fundos  = db.ativoso2.find({"cd_jcot": '10681'})
+     
     #criando as tasks para baixar as posições do o2
     for item in fundos:
         item['_id'] = str(item['_id'])

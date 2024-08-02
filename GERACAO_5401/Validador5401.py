@@ -377,13 +377,11 @@ class XML_5401:
         self.reescrever_xml(file_name)
 
     def ajustar_cotas(self):
-        print("ajustando cotas")
         cotas = self.root.findall(".//cota")
         with ThreadPoolExecutor() as executor:
             executor.map(self.job_ajuste_cota, cotas)
 
     def ajustar_cotistas(self):
-        print("ajustando cotistas")
         cotistas = self.root.findall(".//cotista")
         with ThreadPoolExecutor() as executor:
             executor.map(self.job_ajuste_cotista, cotistas)

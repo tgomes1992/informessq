@@ -28,7 +28,7 @@ def job_criar_fundos(cnpj , documento_5401 ):
 @geracao_informes_bp.route("/5401")
 def gerar_informe_5401():
 
-    adm = '02332886000104'
+    adm = '36113876000191'
 
     fundos_por_adm = db.fundos.find({"administrador": adm})
 
@@ -38,7 +38,7 @@ def gerar_informe_5401():
     documento_5401 = Documento5401()
     criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401 )
     
-    cnpjs = ['46153220000156']
+    # cnpjs = ['19249989000108']
 
     try:
             
@@ -49,7 +49,7 @@ def gerar_informe_5401():
         documento = documento_5401.retornar_arquivo_5401_completo()
         ajustador = XML_5401(documento)
         ajustador.ajustar_arquivo_5401()        
-        ajustador.reescrever_xml('arqu.xml')            
+        ajustador.reescrever_xml('DTVM.xml')            
         # documento_5401.escrever_arquivo()
 
 
