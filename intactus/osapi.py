@@ -285,6 +285,24 @@ class o2Api():
         return df
     
 
+    def get_investidores(self):
+        headers = {
+                'Authorization': f'Bearer {self.get_token()}' ,
+                'Content-Type': 'application/json'
+        }
+
+
+        url = "https://escriturador.oliveiratrust.com.br/intactus/icorp/api/investidor/obtertodos"    
+
+
+        request =  requests.get(url,headers=headers)
+
+        retorno = json.loads(request.content)['dados']
+
+        return retorno
+    
+
+
     
     def valor_cota_adicionar(self , df_cotas):
         headers = {

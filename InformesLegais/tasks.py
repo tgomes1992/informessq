@@ -62,3 +62,23 @@ def extrair_posicao_o2(ativo_o2 , header):
     return {"message": f"Extração da posição do ativo {ativo_o2['descricao']} Concluída"}
 
 
+
+
+@celery_app.task(name="Atualizar Investidores")
+def atualizar_investidores_o2():
+    api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
+
+
+    app = Flask(__name__)
+    app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
+    with app.app_context():
+        
+        resultado = api.get_investidores()    
+        db.investidoreso2.insert_many(resultado)
+        
+
+    print (f"Investidores Realizada com sucesso")
+    return {"message": f"Extração de Investidores Concluída com sucesso"}
+
+
+
