@@ -1,0 +1,29 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+<h1> Gerar 5401</h1>
+
+ <form action="/submit" method="post">
+            <div class="mb-3">
+                <label for="exampleSelect" class="form-label">Selecione o Administrador</label>
+                <select class="form-select" id="exampleSelect" name="administrador">
+
+                    {% for adm in adms %}
+                        <option value={{ adm }}>{{ adm }}</option>
+                    {% endfor %}
+
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+ </form>
+
+
+
+
+
+
+
+
+{% endblock %}

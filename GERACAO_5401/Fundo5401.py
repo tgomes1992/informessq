@@ -28,11 +28,13 @@ class Fundo5401():
     def consultar_posicoes_jcot(self):
         fundos = self.consultar_fundos_5401()
         lista_codigos = [item['codigo'] for item in fundos]
+
         
         try:
         
             posicoes_jcot =  self.client["informes_legais"]["posicoesjcot"].find({"fundo": {"$in": lista_codigos} })
             df = pd.DataFrame(posicoes_jcot)
+
             df['qtCotas'] = df['qtCotas'].apply(float)
             df['vlCorrigido'] = df['vlCorrigido'].apply(float)
 
@@ -119,10 +121,11 @@ class Fundo5401():
         df_fundo = pd.DataFrame.from_dict(posicoes)
  
 
+        print (df_fundo)
+
         return df_fundo
 
     def job_criar_cotista_cetip(self ,  cotista , df_com_tipo_cota , lista_de_cotas):
-        print (cotista)
         try:
             cotas_df = df_com_tipo_cota[df_com_tipo_cota['cpfcnpjInvestidor'] == cotista['cpfcnpjInvestidor']]            
             cotas_df_pre_ajustado = cotas_df.groupby(['cd_jcot', 'cotatipo' ,'valor_cota'])[
@@ -165,7 +168,7 @@ class Fundo5401():
     def transforma_posicao_posicao_informe(self):
         '''usa o df do fundo para transforma-lo no xml do 5401'''
         df_posicao = self.consultar_posicoes_jcot()
-    
+
 
         if not df_posicao.empty:
 
@@ -206,15 +209,16 @@ class Fundo5401():
 
 
             if not cotista_cetip.empty:
-                df_cetip = self.consultar_cotista_cetip(self.CNPJ_EMISSOR)
-                cotistas_cetip = self.transformar_cotistas_cetip(df_cetip)
+                try:
+                    df_cetip = self.consultar_cotista_cetip(self.CNPJ_EMISSOR)
+                    cotistas_cetip = self.transformar_cotistas_cetip(df_cetip)
 
-                for item in cotistas_cetip:
+                    for item in cotistas_cetip:
 
+                        xml_cotistas.append(item)
 
-                    xml_cotistas.append(item)
-                pass
-
+                except Exception as e:
+                    print (e)
 
 
             xml_fundos.append(xml_cotistas)

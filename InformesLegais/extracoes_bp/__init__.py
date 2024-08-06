@@ -19,9 +19,12 @@ extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
 @extracoes.route("/extrair_jcot")
 def extrair_posicoes_jcot():    
     fundos = db.fundos.find({})
+
+    db.posicoesjcot.delete_many({})
+
     for fundo in fundos:
         fundo['_id'] = str(fundo['_id'])
-        fundo['dataPosicao'] = "2024-06-28"
+        fundo['dataPosicao'] = "2024-07-31"
         fundo['fundo'] = fundo['codigo']
         extrair_posicao_jcot_unique.delay(fundo)
 
@@ -35,6 +38,8 @@ def atualizar_ativos_02():
     db.ativoso2.delete_many({})
     extrator_intactus = Extracao_Quantidades_O2( client, datetime(2024,6,28) )
     fundos = extrator_intactus.get_lista_fundos()
+
+
     db.ativoso2.insert_many(fundos)
 
     return jsonify({"messsage": "Ativos Atualizados"})
@@ -60,7 +65,7 @@ def extrair_posicoes_o2():
     #criando as tasks para baixar as posições do o2
     for item in fundos:
         item['_id'] = str(item['_id'])
-        item['data'] = '2024-06-28'
+        item['data'] = '2024-07-31'
         extrair_posicao_o2.delay(item , headers)
     
     return jsonify({"messsage": "Posiçoes Extraídas"})

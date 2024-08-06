@@ -14,7 +14,6 @@ geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/gera
 
 
 def job_criar_fundos(cnpj , documento_5401 ):
-    print (cnpj)
     gerador_fundo_5401 = Fundo5401(cnpj)
     fundo = gerador_fundo_5401.transforma_posicao_posicao_informe()
 
@@ -25,10 +24,27 @@ def job_criar_fundos(cnpj , documento_5401 ):
         pass
 
 
+
+@geracao_informes_bp.route("/gerar_arquivo")
+def gerar_arquivo_5401():
+    fundos = db.fundos.find({})
+    adms = []
+    for item in fundos:
+        if item['administrador'] not in adms:
+            adms.append(item['administrador'])
+
+
+
+
+    return render_template("form_geracao_5401.html" , adms = adms)
+
+
+
+
 @geracao_informes_bp.route("/5401")
 def gerar_informe_5401():
 
-    adm = '36113876000191'
+    adm = '02332886000104'
 
     fundos_por_adm = db.fundos.find({"administrador": adm})
 
@@ -38,18 +54,18 @@ def gerar_informe_5401():
     documento_5401 = Documento5401()
     criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401 )
     
-    # cnpjs = ['19249989000108']
+    # cnpjs = ['47280025000150']
 
     try:
             
         with ThreadPoolExecutor(max_workers=7) as executor:
             executor.map(criacao_fundos, cnpjs)
-            
+
 
         documento = documento_5401.retornar_arquivo_5401_completo()
         ajustador = XML_5401(documento)
         ajustador.ajustar_arquivo_5401()        
-        ajustador.reescrever_xml('DTVM.xml')            
+        ajustador.reescrever_xml(f"{adm}.xml")
         # documento_5401.escrever_arquivo()
 
 

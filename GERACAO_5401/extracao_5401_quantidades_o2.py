@@ -72,7 +72,7 @@ class Extracao_Quantidades_O2():
         ativos = self.get_ativos_o2()
         print (ativos)
         fundos = ['FIP' , 'FII' , 'FIM' , 'FIDC' , 'FIA' , 'FIC FIDC' , 'FIC FIM' , 'RECIBO DE SUBSCRIÇÃO - FUNDO IMOBILIARIO' , 'FIAGRO' , 'FIP-IE' , "CFF" ]
-        fundos_a_buscar = ativos[ativos['nomeTipoInstrumentoFinanceiro'].isin(fundos)]
+        fundos_a_buscar = ativos
         fundos_a_buscar['cd_escritural'] = fundos_a_buscar['codigosInstrumentosFinanceiros'].apply(self.ajustar_codigo_escritural)
         fundos_a_buscar['cd_jcot'] = fundos_a_buscar['codigosInstrumentosFinanceiros'].apply(lambda x : self.get_cd_jcot_lista(x, 'JCOT'))
         fundos_a_buscar['dataFimRelacionamento'] = fundos_a_buscar['dataFimRelacionamento'].apply(self.ajustar_data_fim_relacionamento)

@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from ..db import db
 import pandas as pd
 from GERACAO_5401.Representantes import Representante
+from GERACAO_5401.Administradores import Adms
 from dataclasses import asdict
 
 cadastros = Blueprint('cadastros', __name__ , url_prefix='/cadastros')
@@ -28,17 +29,27 @@ def buscarFundosJcot():
 
 
 
+@cadastros.route("/administradores")
+def cadastro_administradores():
+
+    fundos = db.fundos.find({})
+    adms =[]
+    for item in fundos:
+        if item['administrador'] not in adms:
+            adms.append(item['administrador'])
+
+    admin = [Adms(nome=" " , cnpj=item).to_dict() for item in adms]
+
+    return jsonify(admin)
+
+
 @cadastros.route("/representantes")
 def cadastros_representantes():
-    
-    representante = Representante(nome="Thiago" , telefone="24035621" , administrador="36113876000191")
-    
+    representante = Representante(nome="Thiago", telefone="24035621", administrador="36113876000191")
+
     db.representantes.insert_one(asdict(representante))
-    
-    
+
     return jsonify(representante)
-
-
 
 
 @cadastros.route("/listar_fundos", methods=['GET'])
@@ -66,7 +77,7 @@ def listarFundos():
 
 
 
-@cadastros.route("/list_fundos")
+@cadastros.route("/home")
 def list_fundos_template():
     
     fundos = db.fundos.find({})
