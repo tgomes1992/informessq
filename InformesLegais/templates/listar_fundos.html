@@ -1,0 +1,51 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+
+<h1>Lista de Fundos Jcot</h1>
+
+<table class="table">
+    
+    <thead>
+        <th>Fundo</th>
+        <th>Codigo</th>
+    
+    </thead>    
+
+
+    <tbody>
+                
+ 
+
+            {% for fundo in fundos %}
+            <tr>
+
+            <td>{{ fundo['codigo'] }}</td>
+            
+            <td>{{ fundo['razaoSocial'] }}</td>
+             
+            <td><a class='btn btn-primary' href={{ url_for('cadastros.editarFundo') }}?id={{fundo['id']}}>Detalhe</a></td>
+
+        </tr>
+    
+            {% endfor %}
+   
+
+  
+
+
+
+
+    </tbody>
+
+
+
+</table>
+
+
+
+
+
+{% endblock %}

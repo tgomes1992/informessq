@@ -1,8 +1,10 @@
-from flask import Blueprint , request , jsonify , render_template
+from flask import Blueprint , request , jsonify , render_template , redirect
 from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
 from bson.objectid import ObjectId
 from ..db import db
 import pandas as pd
+from GERACAO_5401.Representantes import Representante
+from dataclasses import asdict
 
 cadastros = Blueprint('cadastros', __name__ , url_prefix='/cadastros')
 
@@ -23,6 +25,21 @@ def buscarFundosJcot():
 
 
     return jsonify({"message": "Fundos cadastrados com sucesso!"})
+
+
+
+@cadastros.route("/representantes")
+def cadastros_representantes():
+    
+    representante = Representante(nome="Thiago" , telefone="24035621" , administrador="36113876000191")
+    
+    db.representantes.insert_one(asdict(representante))
+    
+    
+    return jsonify(representante)
+
+
+
 
 @cadastros.route("/listar_fundos", methods=['GET'])
 def listarFundos():
@@ -47,6 +64,18 @@ def listarFundos():
         "items": retorno
     })
 
+
+
+@cadastros.route("/list_fundos")
+def list_fundos_template():
+    
+    fundos = db.fundos.find({})
+    
+    lista_fundos = [{ "id": str(fundo['_id']) , "codigo": fundo['codigo'] , "razaoSocial": fundo['razaoSocial']} for fundo in fundos]
+    
+    
+    return render_template("listar_fundos.html" , fundos=lista_fundos)
+
 @cadastros.route("/editar_fundo", methods=['GET', 'POST'])
 def editarFundo():
     fundo_id = request.args.get('id')
@@ -55,11 +84,13 @@ def editarFundo():
 
     if request.method == 'POST':
 
-        print (request.form['tipoCota'])
         fundo = db.fundos.update_one(
                                     {'_id': ObjectId(request.form.get('id'))} ,
                                     { "$set": { "tipoCota": request.form['tipoCota'] }}
                                  )
+        
+        
+        return redirect("list_fundos")
 
     return render_template("form_register.html", fundo=fundo)
 
