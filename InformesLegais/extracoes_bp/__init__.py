@@ -58,9 +58,11 @@ def extrair_posicoes_o2():
 
     db.posicoeso2.delete_many({})
 
-    fundos  = db.ativoso2.find({"cd_jcot": { "$ne": "Sem Código" }})
-    
-    # fundos  = db.ativoso2.find({"cd_jcot": '10681'})
+    # fundos  = db.ativoso2.find({"cd_jcot": { "$ne": "Sem Código" }})
+
+
+    fundos  = db.ativoso2.find({"cd_jcot": { "$in": ['763'] }})
+
      
     #criando as tasks para baixar as posições do o2
     for item in fundos:

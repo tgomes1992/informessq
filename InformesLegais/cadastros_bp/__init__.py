@@ -18,7 +18,6 @@ def buscarFundosJcot():
 
     codigos = [item['codigo'] for item in consulta]
 
-    print (codigos)
 
     for item in list_fundos:
         if item['codigo'] not in codigos:

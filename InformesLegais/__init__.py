@@ -20,6 +20,7 @@ from .tasks import extrair_posicao_jcot_unique
 def create_app():
 
     app = Flask(__name__)
+    app.secret_key = '762ebc2bbcee5fd6ecabea179063bb30'
     app.register_blueprint(cadastros)
     app.register_blueprint(extracoes)
     app.register_blueprint(geracao_informes_bp)

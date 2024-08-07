@@ -123,7 +123,7 @@ class o2Api():
 
 
 
-    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot ,  headers , cota ):
+    def get_posicao(self, data,  codigoInstrumentoFinanceiro ,  cd_jcot ,  headers , cota , item ):
 
         url = f"https://escriturador.oliveiratrust.com.br/intactus/escriturador/api/Posicao/obterpordatainvestidorinstrumentofinanceiro?codigoInstrumentoFinanceiro={codigoInstrumentoFinanceiro}&data={data}"
         
@@ -133,7 +133,8 @@ class o2Api():
 
         df = pd.DataFrame.from_dict(retorno)
 
-        df['cd_escritural'] =  codigoInstrumentoFinanceiro
+
+        df['cd_escritural'] =  item['cd_escritural']
         df['cd_jcot'] = cd_jcot
         df['valor_cota'] = cota
 

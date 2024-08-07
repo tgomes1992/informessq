@@ -5,7 +5,7 @@
 {% block content %}
 <h1> Gerar 5401</h1>
 
- <form action="/submit" method="post">
+ <form action={{ url_for("geracao_informes.gerar_informe_5401") }} method="post">
             <div class="mb-3">
                 <label for="exampleSelect" class="form-label">Selecione o Administrador</label>
                 <select class="form-select" id="exampleSelect" name="administrador">
@@ -16,7 +16,7 @@
 
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Gerar Arquivo</button>
  </form>
 
 
