@@ -70,10 +70,8 @@ class Extracao_Quantidades_O2():
     def get_lista_fundos(self):
         # self.db['ativos_o2'].delete_many({})
         ativos = self.get_ativos_o2()
-        print (ativos)
-        fundos = ['FIP' , 'FII' , 'FIM' , 'FIDC' , 'FIA' , 'FIC FIDC' , 'FIC FIM' , 'RECIBO DE SUBSCRIÇÃO - FUNDO IMOBILIARIO' , 'FIAGRO' , 'FIP-IE' , "CFF" ]
         fundos_a_buscar = ativos
-        fundos_a_buscar['cd_escritural'] = fundos_a_buscar['codigosInstrumentosFinanceiros'].apply(self.ajustar_codigo_escritural)
+        fundos_a_buscar['cd_escritural'] = fundos_a_buscar['codigosInstrumentosFinanceiros'].apply(lambda x : self.get_cd_jcot_lista(x, 'ESCRITURAL'))
         fundos_a_buscar['cd_jcot'] = fundos_a_buscar['codigosInstrumentosFinanceiros'].apply(lambda x : self.get_cd_jcot_lista(x, 'JCOT'))
         fundos_a_buscar['dataFimRelacionamento'] = fundos_a_buscar['dataFimRelacionamento'].apply(self.ajustar_data_fim_relacionamento)
         filtro = fundos_a_buscar['dataFimRelacionamento'] >= self.data
