@@ -10,16 +10,17 @@ from GERACAO_5401.xml_5401 import XML_5401
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 import pandas as pd
+from InformesLegais.db import db
+from pymongo import MongoClient
 
 load_dotenv()
 
 
 def job_criar_fundos(cnpj, documento_5401):
     gerador_fundo_5401 = Fundo5401(cnpj)
-    try:
-        fundo = gerador_fundo_5401.transforma_posicao_posicao_informe()
-    except Exception as e:
-        print (e)
+
+    fundo = gerador_fundo_5401.transforma_posicao_posicao_informe()
+
 
     if fundo is not None:
 
@@ -36,8 +37,15 @@ def gerar_5401_por_adm(adm):
 
         documento_5401 = Documento5401()
         criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401)
+        client = MongoClient("localhost", 27017)
+         
+        fundos_por_adm = db.fundos.find({'administrador':adm})
+        
+        df = pd.DataFrame.from_dict(fundos_por_adm)
 
-        cnpjs = [adm]
+        cnpjs = list(df['cnpj'].drop_duplicates())
+
+
         try:
             with ThreadPoolExecutor() as executor:
                 executor.map(criacao_fundos, cnpjs)
@@ -52,4 +60,4 @@ def gerar_5401_por_adm(adm):
 
 
 
-gerar_5401_por_adm('08387157000123')
+gerar_5401_por_adm('02332886000104')

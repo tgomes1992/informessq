@@ -6,6 +6,7 @@ from .validador_cpf_cnpj import ValidadorCpfCnpj
 from xml.dom import minidom
 import json
 from concurrent.futures import ThreadPoolExecutor
+from pymongo import MongoClient
 
 
 # endereco = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
@@ -48,6 +49,22 @@ class XML_5401:
         df['nome_fundo'] = df['cnpjFundo'].apply(get_fundos_nome)
         return df
         
+
+    def send_cotistas_to_db(self):
+        client = MongoClient("localhost", 27017)
+        base = client['informes_legais']['tipoCotista']
+        cotistas = self.tree.findall(".//cotista")
+        for item in cotistas:
+            cotista = {
+                "tipoPessoa":  item.get("tipoPessoa") , 
+                "identificacao": item.get("identificacao") , 
+                "classificacao": item.get("classificacao")
+            }
+
+            if not base.find_one({'identificacao': cotista['identificacao']}):
+                base.insert_one(cotista)
+
+ 
 
     def get_cotistas(self):
         cotistas = []

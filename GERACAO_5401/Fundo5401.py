@@ -211,12 +211,12 @@ class Fundo5401():
 
                 if '9358105000191' not in cotista['cd_cotista'] and '9346601000125' not in  cotista['cd_cotista'] :
                     #consulta das cotas do cotista  
-                    print (cotista['cpfcnpjCotista'])
+  
 
                     cotas_df = n_posicao[n_posicao['cpfcnpjCotista'] == cotista['cpfcnpjCotista']]
                     cotas_df_pre_ajustado  = cotas_df.groupby(['fundo', 'valor_cota' , 'cotatipo'])[['vlCorrigido' , 'qtCotas']].sum().reset_index()
                     cotas_df_pre_ajustado.columns = ['tipo', 'valorCota' , 'cotatipo' , 'vlCorrigido' , 'qtdeCotas' ]
-                    print (cotas_df_pre_ajustado)
+
                     cotas_xml_elemento = self.criar_cotas(cotas_df_pre_ajustado.to_dict("records"))
                     elemento_cotista = self.criar_cotistas_unico(cotista)
                     elemento_cotista.append(cotas_xml_elemento)
