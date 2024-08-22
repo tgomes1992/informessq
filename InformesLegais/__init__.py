@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask , render_template
 from .cadastros_bp import cadastros
 from .extracoes_bp import extracoes
 from .geracaoInformes_bp import geracao_informes_bp
@@ -26,8 +26,8 @@ def create_app():
     app.register_blueprint(geracao_informes_bp)
 
     @app.route('/')
-    def hello_world():  # put application's code here
-        return 'Hello World!'
+    def home():  # put application's code here
+        return render_template("main_template.html")
 
     app.config['DEBUG'] = True
 

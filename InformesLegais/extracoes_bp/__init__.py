@@ -7,6 +7,7 @@ from GERACAO_5401 import Extracao_Quantidades_O2 , client
 from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 from datetime import datetime
 from ..tasks import extrair_posicao_o2 , atualizar_investidores_o2
+import os
 
 
 extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
@@ -75,11 +76,8 @@ def get_investidores():
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
     #consulta de fundos que possuem código jcot
 
-    db.investidoreso2.delete_many({})
     
-    # atualizar_investidores_o2.delay()
+    atualizar_investidores_o2.delay()
 
-    resultado = api.get_investidores()
-    db.investidoreso2.insert_many(resultado)
-    
+
     return jsonify({"messsage": "Posiçoes Extraídas"})

@@ -8,6 +8,10 @@ import pandas as pd
 import json
 from GERACAO_5401 import ExtratorCotas
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
+import os
+from flask import Flask
 
 
 class o2Api():
@@ -303,8 +307,6 @@ class o2Api():
         return retorno
     
 
-
-    
     def valor_cota_adicionar(self , df_cotas):
         headers = {
                 'Authorization': f'Bearer {self.get_token()}' ,
@@ -330,4 +332,53 @@ class o2Api():
 
         return pd.DataFrame.from_dict(resultado)
 
+    def get_dados_investidores(self , investidor):
+            headers = {
+                'Authorization': f'Bearer {self.get_token()}',
+                'Content-Type': 'application/json'
+            }
+
+            dados =  {"cpfCnpj": investidor }
+
+            url = "https://escriturador.oliveiratrust.com.br/intactus/icorp/api/investidor/obterporcpfcnpj"
+
+            request = requests.get(url,headers=headers ,args=dados)
+
+            if request.status_code == '200':
+                return  request.json()
+            else:
+                return  {"message": request.content}
+
+
+    def job_query_investidor(self,  investidor ,headers ,   mongo):
+        print (f"buscando dados do investidor {investidor}")
+        dados = {"cpfCnpj": investidor}
+        url = f"https://escriturador.oliveiratrust.com.br/intactus/icorp/api/investidor/obterporcpfcnpj?cpfCnpj={int(investidor)}"
+        try:
+            request = requests.get(url, headers=headers)
+            dados = request.json()
+            app = Flask(__name__)
+            app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
+            with app.app_context():
+                mongo.investidoreso2.insert_one(dados['dados'])
+        except Exception as e :
+            print (e)
+
+
+
+    def get_dados_investidores_multiple(self , lista_investidores , mongo):
+
+        '''retornar dados de múltiplos investidores'''
+
+        headers = {
+            'Authorization': f'Bearer {self.get_token()}',
+            'Content-Type': 'application/json'
+        }
+
+
+        func = partial(self.job_query_investidor  , headers=headers ,  mongo=mongo   )
+
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            executor.map( func , lista_investidores)
 

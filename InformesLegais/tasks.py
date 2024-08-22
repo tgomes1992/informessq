@@ -84,12 +84,14 @@ def atualizar_investidores_o2():
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
     with app.app_context():
+        investidores = db.posicoeso2.aggregate([{"$group": {'_id': '$cpfcnpjInvestidor'}}])
 
-        print("extraindo investidores")
+        df = pd.DataFrame(investidores)
 
-        resultado = api.get_investidores()    
-        db.investidoreso2.insert_many(resultado)
-        
+        lista = list(df['_id'])
+
+        api.get_dados_investidores_multiple(lista, db)
+
 
     print (f"Investidores Realizada com sucesso")
     return {"message": f"Extração de Investidores Concluída com sucesso"}

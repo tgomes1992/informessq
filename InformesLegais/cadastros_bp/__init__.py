@@ -1,4 +1,4 @@
-from flask import Blueprint , request , jsonify , render_template , redirect
+from flask import Blueprint , request , jsonify , render_template , redirect , url_for
 from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
 from bson.objectid import ObjectId
 from ..db import db
@@ -94,13 +94,17 @@ def editarFundo():
 
     if request.method == 'POST':
 
+
+
         fundo = db.fundos.update_one(
                                     {'_id': ObjectId(request.form.get('id'))} ,
-                                    { "$set": { "tipoCota": request.form['tipoCota'] }}
+                                    { "$set": { "tipo": request.form['tipoCota'] }}
                                  )
+
+
         
         
-        return redirect("list_fundos")
+        return redirect(url_for("cadastros.list_fundos_template"))
 
     return render_template("form_register.html", fundo=fundo)
 
