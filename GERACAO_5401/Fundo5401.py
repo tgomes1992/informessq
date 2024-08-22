@@ -182,6 +182,8 @@ class Fundo5401():
 
         df_cetip = self.consultar_cotista_cetip(self.CNPJ_EMISSOR)
 
+        print (df_cetip)
+
         df_cetip_ajustado = self.ajustar_df_cetip(df_cetip)
 
         n_posicao = pd.concat([df_posicao , df_cetip_ajustado]).reset_index()

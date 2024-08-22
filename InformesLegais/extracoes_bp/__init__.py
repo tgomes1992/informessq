@@ -1,6 +1,5 @@
 from flask import Blueprint , request , jsonify , render_template
-from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
-from bson.objectid import ObjectId
+
 from InformesLegais.db import db
 from InformesLegais.tasks import extrair_posicao_jcot_unique
 import pandas as pd
@@ -11,9 +10,6 @@ from ..tasks import extrair_posicao_o2 , atualizar_investidores_o2
 
 
 extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
-
-
-
 
 
 @extracoes.route("/extrair_jcot")
@@ -81,8 +77,9 @@ def get_investidores():
 
     db.investidoreso2.delete_many({})
     
-    atualizar_investidores_o2.delay()
+    # atualizar_investidores_o2.delay()
 
-
+    resultado = api.get_investidores()
+    db.investidoreso2.insert_many(resultado)
     
     return jsonify({"messsage": "Posiçoes Extraídas"})

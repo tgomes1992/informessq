@@ -65,7 +65,7 @@ def extrair_posicao_o2(ativo_o2 , header):
         
         valor_de_cota = get_valor_de_cota_jcot(ativo_o2)
         
-        df_posicao = api.get_posicao( ativo_o2['data'] , ativo_o2['codigoProprio'] ,  ativo_o2['cd_jcot'] , header , valor_de_cota , ativo_o2)
+        df_posicao = api.get_posicao( ativo_o2['data'] , ativo_o2['descricao'] ,  ativo_o2['cd_jcot'] , header , valor_de_cota , ativo_o2)
 
         if not df_posicao.empty:
             db.posicoeso2.insert_many(df_posicao.to_dict('records'))
@@ -84,6 +84,8 @@ def atualizar_investidores_o2():
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
     with app.app_context():
+
+        print("extraindo investidores")
 
         resultado = api.get_investidores()    
         db.investidoreso2.insert_many(resultado)

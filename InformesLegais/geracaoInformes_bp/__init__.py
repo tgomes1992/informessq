@@ -1,12 +1,5 @@
 from flask import Blueprint , request , jsonify , render_template , redirect , url_for , flash
-from GERACAO_5401.Fundo5401 import Fundo5401
-from GERACAO_5401.Documento5401 import Documento5401
-from GERACAO_5401.xml_5401 import XML_5401
-from pymongo import MongoClient
-import pandas as pd
 from ..db import db
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
 from ..tasks import gerar_5401_por_adm
 
 
