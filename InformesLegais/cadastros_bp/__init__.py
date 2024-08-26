@@ -1,4 +1,4 @@
-from flask import Blueprint , request , jsonify , render_template , redirect , url_for
+from flask import Blueprint , request , jsonify , render_template , redirect , url_for , send_file
 from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
 from bson.objectid import ObjectId
 from ..db import db
@@ -6,9 +6,10 @@ import pandas as pd
 from GERACAO_5401.Representantes import Representante
 from GERACAO_5401.Administradores import Adms
 from dataclasses import asdict
+from io import BytesIO
+
 
 cadastros = Blueprint('cadastros', __name__ , url_prefix='/cadastros')
-
 
 @cadastros.route('/cadastros', methods=['GET'])
 def buscarFundosJcot():
@@ -26,20 +27,46 @@ def buscarFundosJcot():
 
     return jsonify({"message": "Fundos cadastrados com sucesso!"})
 
-
-
 @cadastros.route("/administradores")
-def cadastro_administradores():
+def administradores():
 
-    fundos = db.fundos.find({})
-    adms =[]
-    for item in fundos:
-        if item['administrador'] not in adms:
-            adms.append(item['administrador'])
+    adms = db.administradores.find({})
 
-    admin = [Adms(nome=" " , cnpj=item).to_dict() for item in adms]
+    admin = [Adms(nome= item['nome'] , cnpj=item['cnpj'] ,  id = str(item['_id'])).to_dict() for item in adms]
 
-    return jsonify(admin)
+    return render_template("Administradores.html" , admin = admin )
+
+
+@cadastros.route("/administradores_detalhes", methods=['GET' , 'POST'])
+def cadastro_administradores_detalhe():
+
+    id = request.args.get('id')
+    admin = db.administradores.find_one({'_id':ObjectId(id)})
+
+
+    if request.method == 'POST':
+
+
+        cnpj = request.form.get('cnpj')
+        nome = request.form.get('nome')
+        cpf_representante = request.form.get('cpf_representante')
+        representante = request.form.get('representante')
+        tel_representante = request.form.get('tel_representante')
+
+        # Define the update query
+        update_data = {
+            "cnpj": cnpj,
+            "nome": nome.strip(),
+            "cpf_representante": cpf_representante,
+            "representante": representante,
+            "tel_representante": tel_representante
+        }
+
+        # Update the document in MongoDB
+        result = db.administradores.update_one({"_id": ObjectId(id)}, {"$set": update_data})
+
+    return render_template("Administradores_detalhe.html" , admin = admin )
+
 
 
 @cadastros.route("/representantes")
@@ -49,7 +76,6 @@ def cadastros_representantes():
     db.representantes.insert_one(asdict(representante))
 
     return jsonify(representante)
-
 
 @cadastros.route("/listar_fundos", methods=['GET'])
 def listarFundos():
@@ -73,8 +99,6 @@ def listarFundos():
         "size": size,
         "items": retorno
     })
-
-
 
 @cadastros.route("/home")
 def list_fundos_template():
@@ -108,7 +132,6 @@ def editarFundo():
 
     return render_template("form_register.html", fundo=fundo)
 
-
 @cadastros.route("/posicaoFundo", methods=['GET', 'POST'])
 def posicaoJcot():
     codigo_fundo = request.args.get('codigo')
@@ -122,3 +145,19 @@ def posicaoJcot():
         db.posicoes_jcot.insert_many(df)
 
     return {"message": f"Posições do fundo  {codigo_fundo} extraidas com sucesso"}
+
+@cadastros.route("/fundossemtiporelatorio" , methods=['GET'])
+def relatorio_fundos_sem_cadastro():
+    '''rota para gerar em excel o relatório com os fundos sem o tipo de cota cadastrado'''
+    fundos = db.fundos.find({})
+    df_fundos = pd.DataFrame.from_dict(fundos)
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df_fundos[df_fundos['tipo'].isnull()].to_excel(writer, index=False)
+
+    output.seek(0)
+
+    return send_file(output, as_attachment=True, download_name='fundos_sem_cadastro.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+

@@ -1,0 +1,35 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+
+    <h1>Cadastro de Administradores</h1>
+
+
+    <table class="table">
+
+    <thead>
+        <th>Nome</th>
+        <th>CNPJ</th>
+
+    </thead>
+
+        {% for adm in admin %}
+        <tr>
+            <td>{{ adm['nome'] }}</td>
+            <td>{{ adm['cnpj'] }}</td>
+            <td><a class="btn btn-primary" href="{{ url_for('cadastros.cadastro_administradores_detalhe') }}?id={{ adm['id'] }}">Editar</a></td>
+        </tr>
+
+
+    {% endfor %}
+
+
+    </table>
+
+
+
+
+
+{% endblock %}

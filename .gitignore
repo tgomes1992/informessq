@@ -2,3 +2,5 @@
 env
 __pycache__
 *.xml*
+ajustador.py
+validacao_teste.py

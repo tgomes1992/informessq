@@ -1,0 +1,47 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+
+<h1>Edição Administrador</h1>
+
+<form action="#" method="POST" class="p-3">
+    <input name="id" hidden value="{{ admin['_id'] }}">
+
+    <div class="form-group mb-3">
+        <label for="cnpj">CNPJ</label>
+        <input name="cnpj" type="text" id="cnpj" class="form-control" value="{{ admin['cnpj'] }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="nome">Nome</label>
+        <input name="nome" type="text" id="nome" class="form-control" value="{{ admin['nome'] }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="cpf_representante">CPF Representante</label>
+        <input name="cpf_representante" type="text" id="cpf_representante" class="form-control" value="{{ admin['cpf_representante'] }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="representante">Representante</label>
+        <input name="representante" type="text" id="representante" class="form-control" value="{{ admin['representante'] }}">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="tel_representante">Telefone Representante</label>
+        <input name="tel_representante" type="text" id="tel_representante" class="form-control" value="{{ admin['tel_representante'] }}">
+    </div>
+
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value="Concluir Edição">
+    </div>
+</form>
+
+
+
+
+
+
+{% endblock %}

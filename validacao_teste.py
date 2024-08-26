@@ -41,10 +41,11 @@ def gerar_5401_por_adm(adm):
          
         fundos_por_adm = db.fundos.find({'administrador':adm})
         
-        df = pd.DataFrame.from_dict(fundos_por_adm)
+        # df = pd.DataFrame.from_dict(fundos_por_adm)
 
-        cnpjs = list(df['cnpj'].drop_duplicates())
+        # cnpjs = list(df['cnpj'].drop_duplicates())
 
+        cnpjs = ['55241106000179']
 
         try:
             with ThreadPoolExecutor() as executor:
@@ -60,4 +61,5 @@ def gerar_5401_por_adm(adm):
 
 
 
-gerar_5401_por_adm('02332886000104')
+gerar_5401_por_adm('55241106000179')
+
