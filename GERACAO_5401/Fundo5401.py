@@ -19,7 +19,6 @@ class Fundo5401():
     def consultar_fundos_5401(self):
         fundos = self.client['informes_legais']['fundos'].find({"cnpj": self.CNPJ_EMISSOR})
         base = [fundo for fundo in fundos]
-
         return base
 
     def atribuir_tipo_cota(self , df , df_cotas):
@@ -71,6 +70,39 @@ class Fundo5401():
         else:
             return str(cotista)
 
+
+    def get_tipo_cotista_5401(self , investidor):
+        db_investidor = self.client['informes_legais']['investidoreso2']
+        print (investidor)
+        investidor_cadastrado = db_investidor.find_one({'cpfcnpj': int(investidor)})
+        print (investidor_cadastrado)
+        try:
+            tipos_de_cotista_O2 = {'NÃO CLASSIFICADO': 0, 'PESSOA FISICA NÃO RESIDENTE': 3, 'PESSOA FISICA PARAISO FISCAL': 3,
+                                   'INSTITUIÇÃO FINANCEIRA': 3, 'PESSOA JURIDICA SEM FINS LUCRATIVOS': 4,
+                                   'PESSOA JURIDICA NÃO RESIDENTE': 4, 'PESSOA JURIDICA PARAISO FISCAL': 4,
+                                   'FUNDO DE INVESTIMENTO': 7, 'FUNDO DE INVESTIMENTO IMOBILIÁRIO': 8,
+                                   'PESSOA FISICA': 1, 'PESSOA JURIDICA': 2,
+                                   'SOCIEDADE LTDA, ECON. MISTA, ANON., POR COTAS, ETC': 11,
+                                   'BOLSA DE VALORES E MERCADORIAS': 12, 'CONDOMINIO': 13,
+                                   'COOPERATIVA': 14, 'CONSORCIO': 15, 'INST. DE CARATER FILANTROPICO, RECREATIVO, CULT.': 16,
+                                   'BANCO COMERCIAL/ MULTIPLO': 17, 'BANCO DE INVESTIMENTO': 18,
+                                   'SOCIEDADE DE SEGURO, PREVIDENCIA E CAPITALIZAÇÃO': 19,
+                                   'SOCIEDADE DTVM': 20, 'SOCIEDADE CTVM E CAMBIO': 21,
+                                   'SOCIEDADE FINANCEIRA E DE CREDITO IMOBILIARIO': 22,
+                                   'SOCIEDADE DE ARRENDAMENTO MERCANTIL (LEASING)': 23,
+                                   'FUNDO DE PREVIDENCIA PRIVADA – ABERTO': 24,
+                                   'FUNDO DE PREVIDENCIA PRIVADA – FECHADO': 25, 'CLUBE DE INVESTIMENTO': 26, 'TEMPLO DE QUALQUER CULTO': 27,
+                                   'ENTIDADE SINDICAL DOS TRABALHADORES': 28, 'DEPOSITARIO DE ADR': 29,
+                                   'FUNDO DE PLANO DE BENEF. DE SOCIEDADE SEGURADORA': 30,
+                                   'UNIAO, EST., MUNIC. OU DIST. FED., AUTAR. OU FUND.': 31, 'PARTIDO POLITICO E SUAS FUNDACOES': 32}
+
+            return str(tipos_de_cotista_O2[investidor_cadastrado['nomePerfilTributarioInvestidor']])
+        except Exception as e :
+            print (e)
+            return "1"
+
+
+
     def criar_cotistas_unico(self, cotista):
     #todo criar função para validar o tipo de cotista e a sua respectiva classificação
         
@@ -81,6 +113,9 @@ class Fundo5401():
             dados_formatado = self.formatar_cotista(cotista["cpfcnpjCotista"])
             cotista_elemento = ET.Element("cotista")
             cotista_elemento.set("tipoPessoa", '1') #todo ajustar o tipo de pessoa pois está mockado
+
+            cotista_elemento.set("tipoPessoa", self.get_tipo_cotista_5401(cotista['cpfcnpjCotista']))
+
             cotista_elemento.set("identificacao", dados_formatado)
 
             if cotista['cpfcnpjCotista'] == '09358105000191':
