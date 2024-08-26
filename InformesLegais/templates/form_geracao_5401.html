@@ -7,6 +7,12 @@
 
  <form action={{ url_for("geracao_informes.gerar_informe_5401") }} method="post">
             <div class="mb-3">
+
+                  <div class="form-group mb-3">
+                    <label for="nome">Data</label>
+                    <input name="nome" type="date" id="nome" class="form-control">
+                </div>
+
                 <label for="exampleSelect" class="form-label">Selecione o Administrador</label>
                 <select class="form-select" id="exampleSelect" name="administrador">
 
@@ -17,6 +23,8 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Gerar Arquivo</button>
+            <a  class="btn btn-primary" href="#">Baixar Posições</a>
+            <a  class="btn btn-primary" href="#">Sincronizar Investidores</a>
  </form>
 
 

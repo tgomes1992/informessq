@@ -36,7 +36,6 @@ def administradores():
 
     return render_template("Administradores.html" , admin = admin )
 
-
 @cadastros.route("/administradores_detalhes", methods=['GET' , 'POST'])
 def cadastro_administradores_detalhe():
 
@@ -66,8 +65,6 @@ def cadastro_administradores_detalhe():
         result = db.administradores.update_one({"_id": ObjectId(id)}, {"$set": update_data})
 
     return render_template("Administradores_detalhe.html" , admin = admin )
-
-
 
 @cadastros.route("/representantes")
 def cadastros_representantes():
@@ -161,3 +158,12 @@ def relatorio_fundos_sem_cadastro():
     return send_file(output, as_attachment=True, download_name='fundos_sem_cadastro.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
+@cadastros.route("/jobs" , methods=['GET'])
+def jobs():
+    '''rota gerenciar os jobs'''
+
+    jobs = db.celery_taskmeta.find({})
+
+    lista_jobs = [{"status": job['status'] , "result": str(job['result'])  } for job in jobs]
+
+    return render_template("Jobs.html" , jobs = lista_jobs)

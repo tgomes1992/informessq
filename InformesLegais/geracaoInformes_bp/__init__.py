@@ -1,6 +1,6 @@
 from flask import Blueprint , request , jsonify , render_template , redirect , url_for , flash
 from ..db import db
-from ..tasks import gerar_5401_por_adm
+from ..tasks import gerar_5401_por_adm  , extrair_posicao_jcot_unique , extrair_posicao_o2 , extrair_posicao_jcot , extrair_posicao_o2_geral
 
 
 geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/geracao')
@@ -38,15 +38,21 @@ def gerar_arquivo_5401():
 @geracao_informes_bp.route("/5401" , methods=['POST'])
 def gerar_informe_5401():
 
-    adm = '02332886000104'
-
     try:
 
         adm = request.form['administrador']
 
-        print (str(adm))
+        # gerar_5401_por_adm.delay('08387157000123')
 
-        gerar_5401_por_adm.delay('08387157000123')
+        print (adm)
+        #
+        # extrair_posicao_jcot.delay()
+        #
+        # extrair_posicao_o2_geral.delay()
+
+        gerar_5401_por_adm.delay(adm)
+
+
         flash(f"Arquivo enviado para geração" ,  'succes')
 
     except Exception as e:

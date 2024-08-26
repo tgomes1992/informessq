@@ -69,7 +69,6 @@ def extrair_posicoes_o2():
     
     return jsonify({"messsage": "Posiçoes Extraídas"})
 
-
 @extracoes.route("/get_investidores_o2")
 def get_investidores():
     '''extracao de investidores o2'''

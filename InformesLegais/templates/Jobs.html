@@ -1,0 +1,36 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+
+<h1>Jobst</h1>
+
+<table class="table">
+    
+    <thead>
+        <th>Status</th>
+        <th>Descrição</th>
+    
+    </thead>    
+
+
+    <tbody>
+    {% for job in jobs %}
+       <tr>
+            <td>{{ job['status'] }}</td>
+            <td>{{ job['result'] }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+
+
+
+</table>
+
+
+
+
+
+{% endblock %}
