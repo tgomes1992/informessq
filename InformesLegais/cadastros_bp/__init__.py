@@ -5,8 +5,10 @@ from ..db import db
 import pandas as pd
 from GERACAO_5401.Representantes import Representante
 from GERACAO_5401.Administradores import Adms
+from GERACAO_5401.Validador5401 import XML_5401
 from dataclasses import asdict
 from io import BytesIO
+from xml.etree import ElementTree as ET
 
 
 cadastros = Blueprint('cadastros', __name__ , url_prefix='/cadastros')
@@ -157,7 +159,6 @@ def relatorio_fundos_sem_cadastro():
 
     return send_file(output, as_attachment=True, download_name='fundos_sem_cadastro.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-
 @cadastros.route("/jobs" , methods=['GET'])
 def jobs():
     '''rota gerenciar os jobs'''
@@ -167,3 +168,22 @@ def jobs():
     lista_jobs = [{"status": job['status'] , "result": str(job['result'])  } for job in jobs]
 
     return render_template("Jobs.html" , jobs = lista_jobs)
+
+
+@cadastros.route('/consolidador_investidores', methods=['GET', 'POST'])
+def consolidador_investidores():
+
+    if request.method == 'POST':
+        # print (request.files)
+        xml = XML_5401(request.files['arquivo'] , 'validacao')
+
+        for investidor in xml.get_cotistas().to_dict("records"):
+
+            if not db.investidores5401.find_one({"identificacao": investidor["identificacao"]}):
+                db.investidores5401.insert_one(investidor)
+
+
+
+
+    return render_template("consolidador_investidores.html")
+

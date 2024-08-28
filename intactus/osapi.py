@@ -352,7 +352,7 @@ class o2Api():
 
     def job_query_investidor(self,  investidor ,headers ,   mongo):
         print (f"buscando dados do investidor {investidor}")
-        dados = {"cpfCnpj": investidor}
+        dados = {"cpfCnpj": int(investidor)}
         url = f"https://escriturador.oliveiratrust.com.br/intactus/icorp/api/investidor/obterporcpfcnpj?cpfCnpj={int(investidor)}"
         try:
             request = requests.get(url, headers=headers)
@@ -360,7 +360,8 @@ class o2Api():
             app = Flask(__name__)
             app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
             with app.app_context():
-                mongo.investidoreso2.insert_one(dados['dados'])
+                if not mongo.investidoreso2.find_one({"cpfcnpj": int(investidor)}):
+                    mongo.investidoreso2.insert_one(dados['dados'])
         except Exception as e :
             print (e)
 

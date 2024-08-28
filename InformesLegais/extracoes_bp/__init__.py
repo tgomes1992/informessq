@@ -28,7 +28,6 @@ def extrair_posicoes_jcot():
     
     return jsonify({"message": "Fundo enviados para extracao"})
 
-
 @extracoes.route("/atualizar_ativos_intactus")
 def atualizar_ativos_02():
     '''atualizar a base de ativos do o2 '''
@@ -40,7 +39,6 @@ def atualizar_ativos_02():
     db.ativoso2.insert_many(fundos)
 
     return jsonify({"messsage": "Ativos Atualizados"})
-
 
 @extracoes.route("/extrair_posicao")
 def extrair_posicoes_o2():
@@ -75,8 +73,6 @@ def get_investidores():
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
     #consulta de fundos que possuem código jcot
 
-    
     atualizar_investidores_o2.delay()
-
 
     return jsonify({"messsage": "Posiçoes Extraídas"})

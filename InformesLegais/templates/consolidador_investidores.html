@@ -1,0 +1,21 @@
+{% extends "main_template.html" %}
+
+
+
+{% block content %}
+<h1> Consolidador de Investidores</h1>
+    <p>Recebe arquivos do 5401 , para consolidar o histórico de investidores do arquivo.</p>
+
+ <form action="#" method="post"  enctype="multipart/form-data">
+
+         <div class="form-group mb-3">
+            <label for="nome">Arquivo 5401</label>
+            <input name="arquivo" type="file" id="nome" class="form-control">
+        </div>
+         <div class="form-group mb-3">
+            <input type="submit" value="Importar" class=" btn btn-primary form-control">
+        </div>
+ </form>
+
+
+{% endblock %}

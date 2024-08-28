@@ -143,9 +143,11 @@ def atualizar_investidores_o2():
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
 
     app = Flask(__name__)
+
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
+
     with app.app_context():
-        investidores = db.posicoeso2.aggregate([{"$group": {'_id': '$cpfcnpjInvestidor'}}])
+        investidores = db.investidores5401.aggregate([{"$group": {'_id': '$identificacao'}}])
 
         df = pd.DataFrame(investidores)
 
@@ -153,8 +155,6 @@ def atualizar_investidores_o2():
 
         api.get_dados_investidores_multiple(lista, db)
 
-
-    print (f"Investidores Realizada com sucesso")
     return f"Extração de Investidores Concluída com sucesso"
 
 
