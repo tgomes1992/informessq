@@ -175,6 +175,7 @@ def gerar_5401_por_adm(adm):
         criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401)
 
         try:
+            print ("geração iniciada")
             with ThreadPoolExecutor() as executor:
                 executor.map(criacao_fundos, cnpjs)
             documento = documento_5401.retornar_arquivo_5401_completo()
