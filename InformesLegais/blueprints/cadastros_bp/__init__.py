@@ -1,7 +1,7 @@
 from flask import Blueprint , request , jsonify , render_template , redirect , url_for , send_file
 from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
 from bson.objectid import ObjectId
-from ..db import db
+from InformesLegais.db import db
 import pandas as pd
 from GERACAO_5401.Representantes import Representante
 from GERACAO_5401.Administradores import Adms

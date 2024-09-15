@@ -1,12 +1,11 @@
 from flask import Blueprint , request , jsonify , render_template
-
 from InformesLegais.db import db
 from InformesLegais.tasks import extrair_posicao_jcot_unique
 import pandas as pd
 from GERACAO_5401 import Extracao_Quantidades_O2 , client
 from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 from datetime import datetime
-from ..tasks import extrair_posicao_o2 , atualizar_investidores_o2
+from InformesLegais.tasks import extrair_posicao_o2 , atualizar_investidores_o2
 import os
 
 

@@ -1,7 +1,7 @@
+from dotenv import load_dotenv
 from flask import Flask
 import pandas as pd
-from dotenv import load_dotenv
-from ..db import db
+from InformesLegais.db import db
 import os
 
 load_dotenv()

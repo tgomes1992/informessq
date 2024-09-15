@@ -1,16 +1,9 @@
 from flask import Flask , render_template
-from .cadastros_bp import cadastros
-from .extracoes_bp import extracoes
-from .geracaoInformes_bp import geracao_informes_bp
+from .blueprints import *
 import os
 
 from celery import Celery
-
-
-
-
 from .celery import celery_app
-
 from .tasks import extrair_posicao_jcot_unique
 
 
