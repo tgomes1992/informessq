@@ -5,11 +5,6 @@ from flask_pymongo import PyMongo
 from werkzeug.local import LocalProxy
 
 
-# client = MongoClient(os.environ.get('DB_URI_LOCAL'))
-#
-#
-# db = client['informes_legais']
-
 
 def get_db():
     """

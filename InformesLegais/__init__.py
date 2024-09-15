@@ -1,11 +1,7 @@
 from flask import Flask , render_template
 from .blueprints import *
 import os
-
 from celery import Celery
-from .celery import celery_app
-from .tasks import extrair_posicao_jcot_unique
-
 
 
 
@@ -24,7 +20,6 @@ def create_app():
         return render_template("main_template.html")
 
     app.config['DEBUG'] = True
-
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
 
     return app
