@@ -7,15 +7,17 @@ from xml.dom import minidom
 import json
 from concurrent.futures import ThreadPoolExecutor
 
-endereco = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
+# endereco = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
 
-liquidacao = requests.get(endereco)
+# liquidacao = requests.get(endereco)
 
-df = pd.read_csv(BytesIO(liquidacao.content), delimiter=";", encoding="ANSI")
-df['CNPJ_FUNDO'] = df['CNPJ_FUNDO'].apply(lambda x: x.replace(".", "")
-                                          .replace("/", "")
-                                          .replace("-", ""))
+# df = pd.read_csv(BytesIO(liquidacao.content), delimiter=";")
+# df['CNPJ_FUNDO'] = df['CNPJ_FUNDO'].apply(lambda x: x.replace(".", "")
+#                                           .replace("/", "")
+#                                           .replace("-", ""))
 
+
+df = pd.DataFrame()
 
 def get_fundos_nome(cnpj):
     try:

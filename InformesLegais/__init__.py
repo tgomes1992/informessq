@@ -17,6 +17,7 @@ def create_app():
     app.register_blueprint(cadastros)
     app.register_blueprint(extracoes)
     app.register_blueprint(geracao_informes_bp)
+    app.register_blueprint(conroles_bp)
 
     @app.route('/')
     def home():  # put application's code here
