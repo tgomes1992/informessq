@@ -13,3 +13,4 @@ def home_controles():
 
 
 from .ConsolidarPosicaoView import *
+from .DadosInvestidores import *

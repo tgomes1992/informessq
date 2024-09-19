@@ -16,9 +16,15 @@ class ControllerConsolidaPosicoes:
         self.app = Flask(__name__)
         self.app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
 
-    def get_posicoesjcot(self):
+    def get_posicoesjcot(self , data):
         with self.app.app_context():
-            jcot = db.posicoesjcot.find({})
+            fundos = db.fundos.find({})
+            codigos = [fundo['codigo'] for fundo in fundos]
+            jcot = db.posicoesjcot.find({"data": data})
+
+            db.posicaoconsolidada.delete_many({})
+
+
             for item in jcot:
                 if '9358105000191' in item['cpfcnpjCotista'] or '9346601000125' in item['cpfcnpjCotista']:
                     self.processar_posicoes_o2(item)

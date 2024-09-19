@@ -66,6 +66,9 @@ def cadastro_administradores_detalhe():
         # Update the document in MongoDB
         result = db.administradores.update_one({"_id": ObjectId(id)}, {"$set": update_data})
 
+
+        return redirect(url_for("cadastros.administradores"))
+
     return render_template("Administradores_detalhe.html" , admin = admin )
 
 @cadastros.route("/representantes")

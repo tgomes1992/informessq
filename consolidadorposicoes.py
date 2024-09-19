@@ -1,4 +1,4 @@
-from InformesLegais.Controllers.ConsolidadordePosicoes import ControllerConsolidaPosicoes
+from InformesLegais.Services.ConsolidadordePosicoes import ControllerConsolidaPosicoes
 from pymongo import MongoClient
 from multiprocessing import Pool
 import numpy as np
