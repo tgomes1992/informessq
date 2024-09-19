@@ -1,7 +1,7 @@
+from dotenv import load_dotenv
 from flask import Flask
 import pandas as pd
-from dotenv import load_dotenv
-from ..db import db
+from InformesLegais.db import db
 import os
 
 load_dotenv()
@@ -60,11 +60,9 @@ class ControllerConsolidaPosicoes:
         with self.app.app_context():
             try:
                 if item['cpfcnpjCotista'] == '9346601000125':
-
                     posicoeso2 = db.posicoeso2.find({'cd_jcot': item['fundo'],  "depositaria":"BOLSA"})
                     return pd.DataFrame(posicoeso2)
                 elif item['cpfcnpjCotista'] == '9358105000191':
-
                     posicoeso2 = db.posicoeso2.find({'cd_jcot': item['fundo'], "depositaria": "CETIP"})
                     return pd.DataFrame(posicoeso2)
                 else:
