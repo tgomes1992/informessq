@@ -1,14 +1,8 @@
 from flask import Blueprint , request , jsonify , render_template
 from InformesLegais.db import db
-from InformesLegais.tasks import extrair_posicao_jcot_unique
-import pandas as pd
 from GERACAO_5401 import Extracao_Quantidades_O2 , client
-from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 from datetime import datetime
-from InformesLegais.tasks import extrair_posicao_o2 , atualizar_investidores_o2 ,  get_dados_investidor
-import os
-from InformesLegais.Services.ControleInvestidores import ServiceInvestidores
-
+from InformesLegais.Services import ServiceInvestidores , ServiceExtracaoJcotO2
 
 
 extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
@@ -16,18 +10,26 @@ extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
 
 @extracoes.route("/extrair_jcot")
 def extrair_posicoes_jcot():    
-    fundos = db.fundos.find({})
 
-    db.posicoesjcot.delete_many({})
 
-    for fundo in fundos:
-        fundo['_id'] = str(fundo['_id'])
-        fundo['dataPosicao'] = "2024-07-31"
-        fundo['fundo'] = fundo['codigo']
-        extrair_posicao_jcot_unique.delay(fundo)
+    data = datetime.today()
+    ServiceExtracaoJcotO2().ExtracaoJcot(data)
 
     
     return jsonify({"message": "Fundo enviados para extracao"})
+
+
+
+@extracoes.route("/extrair_posicao_o2")
+def extrair_posicoes_o2():
+    '''extracao de posição'''
+
+    data = datetime.today()
+    ServiceExtracaoJcotO2().Extracaoo2(data)
+
+    return jsonify({"messsage": "Posiçoes Extraídas"})
+
+
 
 @extracoes.route("/atualizar_ativos_intactus")
 def atualizar_ativos_02():
@@ -35,82 +37,17 @@ def atualizar_ativos_02():
     db.ativoso2.delete_many({})
     extrator_intactus = Extracao_Quantidades_O2( client, datetime(2024,6,28) )
     fundos = extrator_intactus.get_lista_fundos()
-
-
     db.ativoso2.insert_many(fundos)
 
     return jsonify({"messsage": "Ativos Atualizados"})
 
-@extracoes.route("/extrair_posicao")
-def extrair_posicoes_o2():
-    '''extracao de posição'''
-    api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
 
-    headers = {
-        'Authorization': f'Bearer {api.get_token()}',
-        'Content-Type': 'application/json'
-    }
-    #consulta de fundos que possuem código jcot
-
-    db.posicoeso2.delete_many({})
-
-    fundos  = db.ativoso2.find({"cd_jcot": { "$ne": "Sem Código" }})
-
-
-    # fundos  = db.ativoso2.find({"cd_jcot": { "$in": ['763'] }})
-
-     
-    #criando as tasks para baixar as posições do o2
-    for item in fundos:
-        item['_id'] = str(item['_id'])
-        item['data'] = '2024-07-31'
-        extrair_posicao_o2.delay(item , headers)
-    
-    return jsonify({"messsage": "Posiçoes Extraídas"})
 
 @extracoes.route("/get_investidores_o2")
 def get_investidores():
     '''extracao de investidores o2'''
-    api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
-    #consulta de fundos que possuem código jcot
 
-    # invests = ServiceInvestidores()
-    #
-    # invests.consolidar_investidores()
-
-    investidores = db.investidores5401.aggregate([
-    {
-        '$group': {
-            '_id': '$cpfcnpj'
-        }
-    }
-    ])
-
-
-    header =   {
-    'Authorization': f'Bearer {api.get_token()}' ,
-                'Content-Type': 'application/json'
-    }
-
-    df = pd.DataFrame.from_dict(investidores)
-
-    investidores_o2 = db.investidoreso2.aggregate([
-    {
-        '$group': {
-            '_id': '$cpfcnpj'
-        }
-    }
-])
-    df_o2 = pd.DataFrame.from_dict(investidores_o2)
-
-    investidores_o2_ajustado = [item['_id'] for item in df_o2.to_dict("records")]
-
-    filtro = ~df['_id'].isin(investidores_o2_ajustado)
-    a_buscar = df[filtro]
-
-    for item in a_buscar.to_dict(orient='records')[0:10000]:
-        get_dados_investidor.delay(item['_id'] , header)
-
+    ServiceInvestidores().ExtracaoDadosInvestidores()
 
 
     return jsonify({"messsage": "Dados de Investidores Enviados para Extração"})

@@ -1,4 +1,4 @@
-from InformesLegais.Services.ControleInvestidores import ServiceInvestidores
+from InformesLegais.Services.ServiceInvestidores import ServiceInvestidores
 
 
 invests = ServiceInvestidores()
