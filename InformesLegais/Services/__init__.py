@@ -1,3 +1,3 @@
 from .ConsolidadordePosicoes import ControllerConsolidaPosicoes
-from ServiceInvestidores import ServiceInvestidores
-from ServiceExtracao import ServiceExtracaoJcotO2
+from .ServiceInvestidores import ServiceInvestidores
+from .ServiceExtracao import ServiceExtracaoJcotO2

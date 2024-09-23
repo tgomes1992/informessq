@@ -1,8 +1,5 @@
 from flask import Blueprint , request , jsonify , render_template , redirect , url_for , flash
 from InformesLegais.db import db
-from InformesLegais.tasks import gerar_5401_por_adm  , extrair_posicao_jcot_unique , \
-    extrair_posicao_o2 , extrair_posicao_jcot , extrair_posicao_o2_geral
-
 
 
 geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/geracao')

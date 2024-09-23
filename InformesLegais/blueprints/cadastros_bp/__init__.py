@@ -33,7 +33,6 @@ def buscarFundosJcot():
 def administradores():
 
     adms = db.administradores.find({})
-
     admin = [Adms(nome= item['nome'] , cnpj=item['cnpj'] ,  id = str(item['_id'])).to_dict() for item in adms]
 
     return render_template("Administradores.html" , admin = admin )
