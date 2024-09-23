@@ -44,7 +44,7 @@ class ServiceInvestidores:
 
         with self.app.app_context():
 
-            for
+
 
             self.api.get_dados_investidores(investidores_a_buscar)
 
@@ -105,7 +105,6 @@ class ServiceInvestidores:
         investidores = self.buscar_investidores_5401()
 
         with self.app.app_context():
-
             db.investidores5401.insert_many(investidores.to_dict("records"))
 
         #todo lógica para atualizar esses investidores com os dados do o2 , caso não esteja na tabela do o2

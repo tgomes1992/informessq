@@ -5,8 +5,10 @@ import pandas as pd
 from GERACAO_5401 import Extracao_Quantidades_O2 , client
 from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 from datetime import datetime
-from InformesLegais.tasks import extrair_posicao_o2 , atualizar_investidores_o2
+from InformesLegais.tasks import extrair_posicao_o2 , atualizar_investidores_o2 ,  get_dados_investidor
 import os
+from InformesLegais.Services.ControleInvestidores import ServiceInvestidores
+
 
 
 extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
@@ -72,6 +74,43 @@ def get_investidores():
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
     #consulta de fundos que possuem código jcot
 
-    atualizar_investidores_o2.delay()
+    # invests = ServiceInvestidores()
+    #
+    # invests.consolidar_investidores()
 
-    return jsonify({"messsage": "Posiçoes Extraídas"})
+    investidores = db.investidores5401.aggregate([
+    {
+        '$group': {
+            '_id': '$cpfcnpj'
+        }
+    }
+    ])
+
+
+    header =   {
+    'Authorization': f'Bearer {api.get_token()}' ,
+                'Content-Type': 'application/json'
+    }
+
+    df = pd.DataFrame.from_dict(investidores)
+
+    investidores_o2 = db.investidoreso2.aggregate([
+    {
+        '$group': {
+            '_id': '$cpfcnpj'
+        }
+    }
+])
+    df_o2 = pd.DataFrame.from_dict(investidores_o2)
+
+    investidores_o2_ajustado = [item['_id'] for item in df_o2.to_dict("records")]
+
+    filtro = ~df['_id'].isin(investidores_o2_ajustado)
+    a_buscar = df[filtro]
+
+    for item in a_buscar.to_dict(orient='records')[0:10000]:
+        get_dados_investidor.delay(item['_id'] , header)
+
+
+
+    return jsonify({"messsage": "Dados de Investidores Enviados para Extração"})

@@ -367,6 +367,20 @@ class o2Api():
 
 
 
+
+    def get_dados_investidor_unique(self, cpfcnpj, header):
+        print(f"buscando dados do investidor {cpfcnpj}")
+        dados = {"cpfCnpj": int(cpfcnpj)}
+        url = f"https://escriturador.oliveiratrust.com.br/intactus/icorp/api/investidor/obterporcpfcnpj?cpfCnpj={int(cpfcnpj)}"
+        try:
+            request = requests.get(url, headers=header)
+            return request.json()['dados']
+        except Exception as e :
+            return {"retorno": e}
+
+
+
+
     def get_dados_investidores_multiple(self , lista_investidores , mongo):
 
         '''retornar dados de múltiplos investidores'''
