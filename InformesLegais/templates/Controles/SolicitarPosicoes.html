@@ -1,0 +1,23 @@
+{% extends "main_template.html" %}
+
+{% block content %}
+
+<h1>Solicitar Posições</h1>
+
+<p>Tela construída para solicitar as posições do 5401, sem posição não têm como gerar o arquivo.</p>
+
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+        {{ form.data.label(class="form-label") }}
+        {{ form.data(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+
+</form>
+
+{% endblock %}

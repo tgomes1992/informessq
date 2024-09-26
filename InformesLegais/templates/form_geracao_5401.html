@@ -6,25 +6,22 @@
 <h1> Gerar 5401</h1>
 
  <form action={{ url_for("geracao_informes.gerar_informe_5401") }} method="post">
-            <div class="mb-3">
+     {{ form.hidden_tag() }}
 
-                  <div class="form-group mb-3">
-                    <label for="nome">Data</label>
-                    <input name="nome" type="date" id="nome" class="form-control">
-                </div>
+    <div class="mb-3">
+        {{ form.data.label(class="form-label") }}
+        {{ form.data(class="form-select") }}
+    </div>
 
-                <label for="exampleSelect" class="form-label">Selecione o Administrador</label>
-                <select class="form-select" id="exampleSelect" name="administrador">
+     <div class="mb-3">
+        {{ form.administrador.label(class="form-label") }}
+        {{ form.administrador(class="form-select") }}
+    </div>
 
-                    {% for adm in adms %}
-                        <option value={{ adm }}>{{ adm }}</option>
-                    {% endfor %}
-
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Gerar Arquivo</button>
-            <a  class="btn btn-primary" href="#">Baixar Posições</a>
-            <a  class="btn btn-primary" href={{ url_for("extracoes.get_investidores") }}>Sincronizar Investidores</a>
+    <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+     <a  class="btn btn-primary" href={{ url_for("extracoes.get_investidores") }}>Sincronizar Investidores</a>
  </form>
 
 

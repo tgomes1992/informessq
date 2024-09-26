@@ -14,6 +14,7 @@ class Fundo5401():
     def __init__(self , CNPJ_EMISSOR):
         self.CNPJ_EMISSOR = CNPJ_EMISSOR
         self.client = MongoClient('localhost', 27017)
+        self.lista_cotistas = []
 
 
     def consultar_fundos_5401(self):
@@ -74,6 +75,8 @@ class Fundo5401():
     def get_tipo_cotista_5401(self , investidor):
         db_investidor = self.client['informes_legais']['investidoreso2']
         investidor_cadastrado = db_investidor.find_one({'cpfcnpj': int(investidor)})
+
+
         try:
             tipos_de_cotista_O2 = {'NÃO CLASSIFICADO': 0, 'PESSOA FISICA NÃO RESIDENTE': 3, 'PESSOA FISICA PARAISO FISCAL': 3,
                                    'INSTITUIÇÃO FINANCEIRA': 3, 'PESSOA JURIDICA SEM FINS LUCRATIVOS': 4,
@@ -211,14 +214,6 @@ class Fundo5401():
     def transforma_posicao_posicao_informe(self):
         '''usa o df do fundo para transforma-lo no xml do 5401'''
         df_posicao = self.consultar_posicoes_jcot()[[ 'cd_cotista' , 'cpfcnpjCotista', 'fundo', 'valor_cota' , 'cotatipo' , 'vlCorrigido' , 'qtCotas']]
-
-        # df_cetip = self.consultar_cotista_cetip(self.CNPJ_EMISSOR)
-        #
-        # print (df_cetip)
-        #
-        # df_cetip_ajustado = self.ajustar_df_cetip(df_cetip)
-        #
-        # n_posicao = pd.concat([df_posicao , df_cetip_ajustado]).reset_index()
 
         n_posicao = df_posicao
 

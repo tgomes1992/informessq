@@ -124,5 +124,5 @@ class ServiceInvestidores(ServiceBase):
             filtro = ~df['_id'].isin(investidores_o2_ajustado)
             a_buscar = df[filtro]
 
-            for item in a_buscar.to_dict(orient='records')[0:10000]:
+            for item in a_buscar.to_dict(orient='records')[0:20000]:
                 get_dados_investidor.delay(item['_id'], header)

@@ -12,11 +12,13 @@ extracoes = Blueprint('extracoes', __name__ , url_prefix='/extracoes')
 def extrair_posicoes_jcot():    
 
 
-    data = datetime.today()
-    ServiceExtracaoJcotO2().ExtracaoJcot(data)
+    data_request = request.args.get("data")
+
+    data_datetime = datetime.strptime(data_request , "%Y-%m-%d")
+    ServiceExtracaoJcotO2().ExtracaoJcot(data_datetime)
 
     
-    return jsonify({"message": "Fundo enviados para extracao"})
+    return jsonify({"message": "Fundos Jcot enviados para extração"})
 
 
 
@@ -24,16 +26,20 @@ def extrair_posicoes_jcot():
 def extrair_posicoes_o2():
     '''extracao de posição'''
 
-    data = datetime.today()
-    ServiceExtracaoJcotO2().Extracaoo2(data)
+    data_request = request.args.get("data")
 
-    return jsonify({"messsage": "Posiçoes Extraídas"})
+    data_datetime = datetime.strptime(data_request, "%Y-%m-%d")
+
+    ServiceExtracaoJcotO2().Extracaoo2(data_datetime)
+
+    return jsonify({"messsage": "Posições o2 enviadas para extração com sucesso"})
 
 
 
 @extracoes.route("/atualizar_ativos_intactus")
 def atualizar_ativos_02():
     '''atualizar a base de ativos do o2 '''
+    #todo atualizar essa tarefa , para buscar os dados do o2 , com as suas respectivas correlações corretas
     db.ativoso2.delete_many({})
     extrator_intactus = Extracao_Quantidades_O2( client, datetime(2024,6,28) )
     fundos = extrator_intactus.get_lista_fundos()
