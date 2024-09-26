@@ -24,6 +24,7 @@ class ServiceExtracaoJcotO2(ServiceBase):
             fundos = self.db.ativoso2.find({"cd_jcot": {"$ne": "Sem Código"}})
 
             for item in fundos:
+                print (item)
                 item['_id'] = str(item['_id'])
                 item['data'] = data.strftime("%Y-%m-%d")
                 extrair_posicao_o2.delay(item, headers)

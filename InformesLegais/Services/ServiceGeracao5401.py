@@ -5,6 +5,8 @@ from GERACAO_5401.Fundo5401 import Fundo5401
 from GERACAO_5401.Documento5401 import Documento5401
 from GERACAO_5401.xml_5401 import XML_5401
 from concurrent.futures import ThreadPoolExecutor
+from InformesLegais.tasks import gerar_5401_por_adm
+from InformesLegais.Services.TaskService import TaskService
 
 class ServiceGeracao5401(ServiceBase):
 
@@ -52,3 +54,7 @@ class ServiceGeracao5401(ServiceBase):
 
         # escrever arquivos
         self.gerar_arquivo()
+
+    def gerar_5401_por_adm(self,adm):
+        id = TaskService().start_task(f"Geração 5401 {adm}")
+        gerar_5401_por_adm.delay(adm , id)

@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from uuid import UUID , uuid4
+from pydantic import BaseModel ,Field
+import uuid
 from datetime import datetime , timedelta
 from typing import Optional
 from bson import Binary
 
 
 class TaskModel(BaseModel):
-    id : UUID = uuid4()
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)
     name: str
     start_time : datetime
     end_time : Optional[datetime]

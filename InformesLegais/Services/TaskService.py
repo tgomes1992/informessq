@@ -21,9 +21,10 @@ class TaskService(ServiceBase):
         with self.app.app_context():
             task = TaskModel( name=nome, status="Iniciada" ,
                              start_time=datetime.now() , end_time=datetime.now()  )
-            self.db.tasks.insert_one(task.to_mongo())
 
-            return task.id
+            task2 = self.db.tasks.insert_one(task.to_mongo())
+
+            return str(task.id)
 
 
     def finish_task(self , task_id):
@@ -37,7 +38,7 @@ class TaskService(ServiceBase):
                 return task
                 print ("tarefa atualizada com sucesso")
             except Exception as e:
-                print ("Erro ao atualizar")
+                print (f"Erro ao atualizar {e}")
 
 
 

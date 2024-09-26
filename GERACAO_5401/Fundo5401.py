@@ -75,8 +75,6 @@ class Fundo5401():
     def get_tipo_cotista_5401(self , investidor):
         db_investidor = self.client['informes_legais']['investidoreso2']
         investidor_cadastrado = db_investidor.find_one({'cpfcnpj': int(investidor)})
-
-
         try:
             tipos_de_cotista_O2 = {'NÃO CLASSIFICADO': 0, 'PESSOA FISICA NÃO RESIDENTE': 3, 'PESSOA FISICA PARAISO FISCAL': 3,
                                    'INSTITUIÇÃO FINANCEIRA': 3, 'PESSOA JURIDICA SEM FINS LUCRATIVOS': 4,
@@ -99,7 +97,12 @@ class Fundo5401():
 
             return str(tipos_de_cotista_O2[investidor_cadastrado['nomePerfilTributarioInvestidor']])
         except Exception as e :
-            return "1"
+            if len(investidor) == 11:
+                return "1"
+            elif len(investidor)== 14:
+                return "2"
+            else:
+                return "5"
 
 
 
@@ -112,9 +115,8 @@ class Fundo5401():
         try:
             dados_formatado = self.formatar_cotista(cotista["cpfcnpjCotista"])
             cotista_elemento = ET.Element("cotista")
-            cotista_elemento.set("tipoPessoa", '1') #todo ajustar o tipo de pessoa pois está mockado
 
-            cotista_elemento.set("tipoPessoa", self.get_tipo_cotista_5401(cotista['cpfcnpjCotista']))
+            cotista_elemento.set("tipoPessoa", self.get_tipo_cotista_5401(dados_formatado))
 
             cotista_elemento.set("identificacao", dados_formatado)
 

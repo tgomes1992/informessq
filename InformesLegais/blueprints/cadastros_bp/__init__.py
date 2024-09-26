@@ -167,7 +167,9 @@ def jobs():
 
     jobs = db.tasks.find({})
 
-    lista_jobs = [{"status": job['status'] , "result": str(job['name'])  } for job in jobs]
+    lista_jobs = [{"status": job['status'] , "result": str(job['name']) ,
+                   'end_time': job['end_time'].strftime("%d/%m/%Y %H:%M:%S") ,
+                   'start_time': job['start_time'].strftime("%d/%m/%Y %H:%M:%S") } for job in jobs]
 
     return render_template("Jobs.html" , jobs = lista_jobs)
 

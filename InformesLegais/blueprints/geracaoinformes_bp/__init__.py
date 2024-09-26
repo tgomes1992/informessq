@@ -1,7 +1,7 @@
 from flask import Blueprint , request , jsonify , render_template , redirect , url_for , flash
 from InformesLegais.db import db
 from .forms import SolicitarArquivo5401
-
+from InformesLegais.Services.ServiceGeracao5401 import ServiceGeracao5401
 
 
 geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/geracao')
@@ -11,8 +11,6 @@ geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/gera
 @geracao_informes_bp.route("/gerar_arquivo")
 def gerar_arquivo_5401():
     form = SolicitarArquivo5401()
-
-
     return render_template("form_geracao_5401.html" , form = form)
 
 
@@ -25,7 +23,8 @@ def gerar_informe_5401():
 
         adm = request.form['administrador']
 
-        gerar_5401_por_adm.delay(adm)
+        geracao = ServiceGeracao5401(adm)
+        geracao.gerar_5401_por_adm(adm)
 
 
         flash(f"Arquivo enviado para geração" ,  'succes')

@@ -19,7 +19,7 @@ class SolicitarPosicoes(MethodView):
         try:
             data_request = request.form["data"]
             data_datetime = datetime.strptime(data_request, "%Y-%m-%d")
-            ServiceExtracaoJcotO2().ExtracaoJcot(data_datetime)
+            # ServiceExtracaoJcotO2().ExtracaoJcot(data_datetime)
             ServiceExtracaoJcotO2().Extracaoo2(data_datetime)
             flash(f"Posições Enviadas para extração" ,  'succes')
         except Exception as e:

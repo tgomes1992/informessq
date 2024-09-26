@@ -9,6 +9,7 @@ from GERACAO_5401.xml_5401 import XML_5401
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 import pandas as pd
+from InformesLegais.Services.TaskService import TaskService
 
 
 
@@ -28,7 +29,7 @@ def job_criar_fundos(cnpj, documento_5401):
 
 
 @celery_app.task(name="GERAR 5401")
-def gerar_5401_por_adm(adm):
+def gerar_5401_por_adm(adm , id):
     '''adm precisa ser uma string com o cnpj com 14 digitos do adm'''
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
@@ -44,6 +45,7 @@ def gerar_5401_por_adm(adm):
 
         try:
             print ("geração iniciada !!!")
+            print (adm)
 
             with ThreadPoolExecutor() as executor:
                 executor.map(criacao_fundos, cnpjs)
@@ -51,6 +53,8 @@ def gerar_5401_por_adm(adm):
             ajustador = XML_5401(documento)
             ajustador.ajustar_arquivo_5401()
             ajustador.reescrever_xml(f"{adm}.xml")
+            print (id)
+            TaskService().finish_task(id)
 
         except Exception as e:
             print(e)
