@@ -1,8 +1,8 @@
-from flask import Flask , render_template
+from flask import Flask , render_template , jsonify
 from .blueprints import *
 import os
 from celery import Celery
-
+from .Services import TaskService
 
 
 
@@ -18,6 +18,25 @@ def create_app():
     @app.route('/')
     def home():  # put application's code here
         return render_template("main_template.html")
+
+    @app.route("/task")
+    def criar_tasks():
+        id = TaskService().start_task("Teste")
+
+
+
+        return jsonify({"message":id})
+
+    @app.route("/finish_task/<string:id>")
+    def finishtasks(id):
+        id = TaskService().finish_task(id)
+
+        id['_id'] = str(id['_id'])
+        id['id'] = str(id['id'])
+
+        return jsonify(id)
+
+
 
     app.config['DEBUG'] = True
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')

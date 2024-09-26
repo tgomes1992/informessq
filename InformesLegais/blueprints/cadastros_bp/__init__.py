@@ -165,9 +165,9 @@ def relatorio_fundos_sem_cadastro():
 def jobs():
     '''rota gerenciar os jobs'''
 
-    jobs = db.celery_taskmeta.find({})
+    jobs = db.tasks.find({})
 
-    lista_jobs = [{"status": job['status'] , "result": str(job['result'])  } for job in jobs]
+    lista_jobs = [{"status": job['status'] , "result": str(job['name'])  } for job in jobs]
 
     return render_template("Jobs.html" , jobs = lista_jobs)
 
