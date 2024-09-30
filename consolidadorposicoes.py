@@ -7,14 +7,14 @@ import numpy as np
 
 controller = ControllerConsolidaPosicoes()
 
-client = MongoClient('localhost', 27017)
-db = client['informes_legais']
 
-fundos = db['fundos'].find({})
-codigos = [fundo['codigo'] for fundo in fundos]
+client = MongoClient("mongodb://localhost:27017",
+     connectTimeoutMS=30000,  # Connection timeout in milliseconds (30 seconds)
+    socketTimeoutMS=60000,   # Socket timeout in milliseconds (60 seconds)
+    serverSelectionTimeoutMS=40000   )
 
 
-controller.get_posicoesjcot(codigos)
+controller.get_posicoesjcot('2024-08-30')
 
 
 

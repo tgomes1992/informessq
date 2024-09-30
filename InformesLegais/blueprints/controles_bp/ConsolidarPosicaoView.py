@@ -3,6 +3,7 @@ from flask import render_template , request , jsonify
 from . import conroles_bp
 from .forms import ConsolidarPosicoesForm
 from InformesLegais.tasks.tasks_controles import task_consolidar_posicoes
+from InformesLegais.Services import TaskService
 
 
 class ConsolidarPosicoes(MethodView):
@@ -17,7 +18,11 @@ class ConsolidarPosicoes(MethodView):
     def post(self):
         # Code to handle POST request
 
-        task_consolidar_posicoes.delay(request.form['data'])
+        service_tasks = TaskService()
+
+        task_id = service_tasks.start_task(f"Consolidar Posições {request.form['data']}")
+
+        task_consolidar_posicoes.delay(request.form['data'] ,  task_id)
 
         return jsonify({"message": "Posição enviadas para consolidação"})
     
