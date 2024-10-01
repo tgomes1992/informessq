@@ -111,25 +111,30 @@ class Fundo5401():
         
         #todo lógica de validação do tipo de cotista
 
+        dados = {
+            'tipoPessoa':  cotista['tipoCotista'] ,
+            "identificacao":  self.formatar_cotista(cotista["cpfcnpjCotista"]),
+            "cotas":  []
+            }
+
         try:
             dados_formatado = self.formatar_cotista(cotista["cpfcnpjCotista"])
-            cotista_elemento = ET.Element("cotista")
 
-            cotista_elemento.set("tipoPessoa", cotista['tipoCotista'])
-
-            cotista_elemento.set("identificacao", dados_formatado)
 
             if cotista['cpfcnpjCotista'] == '09358105000191':
-                cotista_elemento.set('classificacao', str(3))
+                dados['classificacao'] = str(3)
+
             else:
-                cotista_elemento.set('classificacao', str(1))
+                dados['classificacao'] = str(1)
+
 
             if cotista['cpfcnpjCotista'] == '02332886000104':
-                cotista_elemento.set('classificacao', str(2))
-            else:
-                cotista_elemento.set('classificacao', str(1))
+                dados['classificacao'] = str(2)
 
-            return cotista_elemento
+            else:
+                dados['classificacao'] = str(1)
+
+            return dados
         except Exception as e:
             print("erro cotistas", e)
 
@@ -143,22 +148,15 @@ class Fundo5401():
         return cotistas
 
     def criar_fundo(self, cnpj_fundo, quantidade_cotas, quantidade_cotistas, plFundo):
-        fundo = ET.Element("fundo")
 
-        fundo.set("cnpjFundo", cnpj_fundo)
-        fundo.set("quantidadeCotas", str(quantidade_cotas))
-        fundo.set('quantidadeCotistas', str(quantidade_cotistas))
-        fundo.set("plFundo",plFundo)
+        return {
+            "cnpjFundo" :  cnpj_fundo ,
+            "quantidadeCotas": quantidade_cotas,
+            "quantidadeCotistas": quantidade_cotistas ,
+            "plFundo":  plFundo ,
+            "cotistas":  []
+        }
 
-        return fundo
-        # return {
-        #     "cnpjFundo" :  cnpj_fundo ,
-        #     "quantidadeCotas": quantidade_cotas,
-        #     "quantidadeCotistas": quantidade_cotistas ,
-        #     "plFundo":  "plFundo" ,
-        #     "cotistas"
-        #
-        # }
     def criar_cotas(self , lista_cotas):
         # todo criar função para pegar a lógica das cotas
 
@@ -181,65 +179,26 @@ class Fundo5401():
 
         return df_fundo
 
-    def job_criar_cotista_cetip(self ,  cotista , df_com_tipo_cota , lista_de_cotas):
-        try:
-            cotas_df = df_com_tipo_cota[df_com_tipo_cota['cpfcnpjInvestidor'] == cotista['cpfcnpjInvestidor']]            
-            cotas_df_pre_ajustado = cotas_df.groupby(['cd_jcot', 'cotatipo' ,'valor_cota'])[
-                ['quantidadeTotalDepositada']].sum().reset_index()
-            cotas_df_pre_ajustado.columns = ['tipo', 'cotatipo', 'valorCota' , 'qtdeCotas']
-            cotas_df_pre_ajustado['vlCorrigido'] = str(cotas_df_pre_ajustado['qtdeCotas'].apply(float) * cotas_df_pre_ajustado['valorCota'].apply(float))
-            elemento_cotista = self.criar_cotistas_unico(cotista)
 
-            print (cotas_df_pre_ajustado)
-
-
-            cotas_xml_elemento = self.criar_cotas(cotas_df_pre_ajustado.to_dict("records"))
-            elemento_cotista.append(cotas_xml_elemento)
-            lista_de_cotas.append(elemento_cotista)
-        except Exception as e:
-            print (e)
-
-    def transformar_cotistas_cetip(self, df_cetip):
-        '''função que vai gerar o xml dos cotistas cetipados'''
-        cotistas = df_cetip.drop_duplicates('cpfcnpjInvestidor')
-
-        df_cetip['fundo'] = df_cetip['cd_jcot']
-
-        tipo_cota = CotasTipo(self.CNPJ_EMISSOR)
-
-        df_tipo_cota = tipo_cota.buscar_cotas()
-
-        df_com_tipo_cota = self.atribuir_tipo_cota(df_cetip ,df_tipo_cota)
-
-        lista_de_cotistas_cetip  = []
-
-
-        cotistas['cpfcnpjCotista'] = cotistas['cpfcnpjInvestidor'].apply(str)
-
-        inicio = partial(self.job_criar_cotista_cetip , df_com_tipo_cota=df_com_tipo_cota , lista_de_cotas=lista_de_cotistas_cetip)
-
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            executor.map( inicio, cotistas.to_dict("records")  )
-
-        return lista_de_cotistas_cetip
-
-
-    def job_criar_cotista_unico(self , cotista , n_posicao ,  xml_cotistas ):
+    def job_criar_cotista_unico(self , cotista , n_posicao ,  cotistas ):
 
         try:
+
             cotas_df = n_posicao[n_posicao['cpfcnpjCotista'] == cotista['cpfcnpjCotista']]
             cotas_df_pre_ajustado = cotas_df.groupby(['fundo', 'valor_cota', 'cotatipo'])[
                 ['vlCorrigido', 'qtCotas']].sum().reset_index()
             cotas_df_pre_ajustado.columns = ['tipo', 'valorCota', 'tipoCota', 'vlCorrigido', 'qtdeCotas']
 
-            cotas_xml_elemento = ET.fromstring(cotas_df_pre_ajustado.to_xml(attr_cols=['tipoCota', 'qtdeCotas', 'valorCota'],
-                       index=False, root_name="cotas", row_name='cota', pretty_print=False))
 
             # cotas_xml_elemento = self.criar_cotas(cotas_df_pre_ajustado.to_dict("records"))
 
+
             elemento_cotista = self.criar_cotistas_unico(cotista)
-            elemento_cotista.append(cotas_xml_elemento)
-            xml_cotistas.append(elemento_cotista)
+
+            elemento_cotista["cotas"] = cotas_df_pre_ajustado[['tipo' , 'tipoCota' , 'valorCota' ,  'qtdeCotas']].to_dict('records')
+
+
+            cotistas.append(elemento_cotista)
 
         except Exception as e:
             print (e ,  cotista)
@@ -262,41 +221,13 @@ class Fundo5401():
             xml_fundos = self.criar_fundo(self.CNPJ_EMISSOR , str(round(n_posicao['qtCotas'].sum() ,2)) , len(total_cotistas) ,  str(round(n_posicao['vlCorrigido'].sum() , 2)) )
 
 
-
-            xml_cotistas = self.montar_cotistas()
-
             cotistas = n_posicao.drop_duplicates('cpfcnpjCotista')
 
-            job_cotista = partial(self.job_criar_cotista_unico ,  n_posicao=n_posicao , xml_cotistas=xml_cotistas)
+            job_cotista = partial(self.job_criar_cotista_unico ,  n_posicao=n_posicao , cotistas=xml_fundos['cotistas'])
+
 
             with ThreadPoolExecutor() as executor:
                 executor.map( job_cotista , cotistas.to_dict('records'))
 
-            xml_fundos.append(xml_cotistas)
-
-
-
             return xml_fundos
 
-
-    def ajustar_df_cetip(self , df_cetip):
-
-        if not df_cetip.empty:
-            mapper_rename = {
-                "cpfcnpjInvestidor": "cpfcnpjCotista" ,
-                'quantidadeTotalDepositada': 'qtCotas' ,
-                'cd_jcot': 'fundo'
-            }
-            df_cetip.rename(columns=mapper_rename , inplace=True)
-            df_cetip['data'] = df_cetip['data'].apply(lambda x :x[0:10])
-            df_cetip['cotatipo'] = df_cetip['fundo'].apply(lambda x : self.get_tipo_cota( x))
-            df_cetip['vlCorrigido'] = df_cetip['qtCotas'].apply(float) * df_cetip['valor_cota'].apply(float)
-
-            df_posicao = df_cetip[[ 'cpfcnpjCotista', 'fundo', 'valor_cota' , 'cotatipo' , 'vlCorrigido' , 'qtCotas']]
-            df_posicao['cpfcnpjCotista'] = df_posicao['cpfcnpjCotista'].apply(lambda x : str(x))
-            df_posicao['cd_cotista']  = df_posicao['cpfcnpjCotista'].apply(lambda x : str(x))
-
-            return df_posicao
-
-        else :
-            return pd.DataFrame()

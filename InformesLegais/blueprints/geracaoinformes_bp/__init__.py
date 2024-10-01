@@ -25,6 +25,8 @@ def gerar_informe_5401():
 
         geracao = ServiceGeracao5401(adm)
         geracao.gerar_5401_por_adm(adm)
+        # geracao.gerar_5401_por_adm_json(adm)
+
 
 
         flash(f"Arquivo enviado para geração" ,  'succes')
