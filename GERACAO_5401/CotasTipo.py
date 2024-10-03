@@ -55,9 +55,9 @@ class CotasTipo():
 
 
 
-    def buscar_cotas(self):
-        cotas = self.client['informes_legais']['fundos'].find({"cnpj": self.cnpj_emissor})
-        df = pd.DataFrame(cotas)
+    def buscar_cotas(self , df):
+        # cotas = self.client['informes_legais']['fundos'].find({"cnpj": self.cnpj_emissor})
+        # df = pd.DataFrame(codigos)
         novo_df = self.atribuir_tipos_de_cota(df)
 
         return novo_df[['codigo' , 'tipo']]

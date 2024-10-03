@@ -45,3 +45,20 @@ class ServiceExtracaoJcotO2(ServiceBase):
                 fundo['fundo'] = fundo['codigo']
                 extrair_posicao_jcot_unique.delay(fundo)
 
+
+    def get_codigo_jcot(self ,  lista_codigos , tipo):
+        for item in lista_codigos:
+            if item['nomeOrigemCodigoInstrumentoFinanceiro'] == tipo:
+                return item['descricao']
+
+        return None
+
+
+
+    def ExtracaoAtivoso2(self):
+        ativos_intactus = self.api.get_ativos()
+
+        ativos_intactus['cd_jcot'] =  ativos_intactus['codigosInstrumentosFinanceiros'].apply(lambda x : self.get_codigo_jcot( x,'JCOT'))
+        ativos_intactus['cd_escritural'] =  ativos_intactus['codigosInstrumentosFinanceiros'].apply(lambda x : self.get_codigo_jcot( x,'ESCRITURAL'))
+
+        return ativos_intactus[~ativos_intactus['cd_jcot'].isnull()].to_dict('records')

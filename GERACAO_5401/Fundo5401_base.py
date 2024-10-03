@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from ValidadorCpfCnpj import ValidadorCpf , ValidadorCnpj
 from pymongo import MongoClient
+import polars as pl
+
 
 class Fundo5401():
 
@@ -24,10 +26,13 @@ class Fundo5401():
 
     def atribuir_tipo_cota(self , df , df_cotas):
 
-        df['cotatipo'] = df['fundo'].apply(lambda x : df_cotas[df_cotas['codigo']== x]['tipo'].values[0])
-        df['cd_cotista'] =  df['cd_cotista'].apply(lambda  x: str(x).strip())
-        df['cpfcnpjCotista'] = df['cpfcnpjCotista'].apply(lambda x: str(x).strip())
-        return df
+        n_df_2 =  df.with_columns(
+                pl.col("fundo").map_elements(lambda x : df_cotas[df_cotas['codigo']== x]['tipo'].values[0]).alias("cotatipo")
+            )
+
+
+
+        return n_df_2
 
     def get_tipo_cota(self , cota):
         consulta_tipos = MongoClient('localhost', 27017)
@@ -42,24 +47,46 @@ class Fundo5401():
 
     def consultar_posicoes_jcot(self):
         fundos = self.consultar_fundos_5401()
-        lista_codigos = [item['codigo'] for item in fundos]
+        df_fundos = pd.DataFrame.from_dict(fundos)
 
-        
+        lista_codigos = [item['codigo'] for item in df_fundos.to_dict('records')]
+
+        aggregate = [
+            {
+                '$match': {
+                    'fundo': {
+                        '$in': lista_codigos
+                    }
+                }
+            }
+        ]
+
         try:
-        
-            posicoes_jcot =  self.client["informes_legais"]["posicaoconsolidada"].find({"fundo": {"$in": lista_codigos} })
-            df = pd.DataFrame(posicoes_jcot)
+            posicoes_jcot = self.client['informes_legais']['posicaoconsolidada'].aggregate(aggregate)
 
-            df['qtCotas'] = df['qtCotas'].apply(float)
-            df['vlCorrigido'] = df['vlCorrigido'].apply(float)
+            # df = pd.DataFrame(posicoes_jcot)
+
+            df = pl.DataFrame(posicoes_jcot)
+
+            n_df = df.with_columns([
+                pl.col("cd_cotista").map_elements(lambda x: x.strip()).alias("cd_cotista"),
+                pl.col("cpfcnpjCotista").map_elements(lambda x: x.strip()).alias("cpfcnpjCotista"),
+                pl.col("vlCorrigido").map_elements(float).alias("vlCorrigido"),
+                pl.col("qtCotas").map_elements(float).alias("qtCotas"),
+            ])
+
+
+            print ("df gerado")
 
             cotas_jcot = CotasTipo(self.CNPJ_EMISSOR)
-            cotas_df = cotas_jcot.buscar_cotas()
+            cotas_df = cotas_jcot.buscar_cotas(df_fundos)
 
-            # print(self.atribuir_tipo_cota(df, cotas_df))
 
-            return self.atribuir_tipo_cota(df, cotas_df)
+            print("df formatado")
+
+            return self.atribuir_tipo_cota(n_df, cotas_df)
         except Exception as e :
+            print (e)
             return pd.DataFrame()
 
     def formatar_cotista(self, cotista): 
@@ -184,21 +211,36 @@ class Fundo5401():
 
         try:
 
-            cotas_df = n_posicao[n_posicao['cpfcnpjCotista'] == cotista['cpfcnpjCotista']]
-            cotas_df_pre_ajustado = cotas_df.groupby(['fundo', 'valor_cota', 'cotatipo'])[
-                ['vlCorrigido', 'qtCotas']].sum().reset_index()
-            cotas_df_pre_ajustado.columns = ['tipo', 'valorCota', 'tipoCota', 'vlCorrigido', 'qtdeCotas']
+            cotas_df = n_posicao.filter(pl.col('cpfcnpjCotista') ==  cotista['cpfcnpjCotista'])
 
+
+            cotas_df_pre_ajustado = cotas_df.group_by(["fundo", "valor_cota", "cotatipo"]).agg(
+                [
+                    pl.col("vlCorrigido").sum().alias("vlCorrigido"),
+                    pl.col("qtCotas").sum().alias("qtCotas")
+                ]
+            )
+            # Rename columns to match the desired column names
+            cotas_df_pre_ajustado = cotas_df_pre_ajustado.rename({
+                "fundo": "tipo",
+                "valor_cota": "valorCota",
+                "cotatipo": "tipoCota",
+                "vlCorrigido": "vlCorrigido",
+                "qtCotas": "qtdeCotas"
+            })
 
             # cotas_xml_elemento = self.criar_cotas(cotas_df_pre_ajustado.to_dict("records"))
 
 
             elemento_cotista = self.criar_cotistas_unico(cotista)
 
-            elemento_cotista["cotas"] = cotas_df_pre_ajustado[['tipo' , 'tipoCota' , 'valorCota' ,  'qtdeCotas']].to_dict('records')
-
+            cotas_records = cotas_df_pre_ajustado.select(["tipo", "tipoCota", "valorCota", "qtdeCotas"]).to_dicts()
+            # elemento_cotista["cotas"] = cotas_df_pre_ajustado[['tipo' , 'tipoCota' , 'valorCota' ,  'qtdeCotas']].to_dict('records')
+            elemento_cotista["cotas"] = cotas_records
 
             cotistas.append(elemento_cotista)
+
+            print(elemento_cotista)
 
         except Exception as e:
             print (e ,  cotista)
@@ -208,26 +250,29 @@ class Fundo5401():
 
     def transforma_posicao_posicao_informe(self):
         '''usa o df do fundo para transforma-lo no xml do 5401'''
-        df_posicao = self.consultar_posicoes_jcot()[[ 'cd_cotista' , 'cpfcnpjCotista', 'fundo', 'valor_cota' , 'cotatipo' , 'vlCorrigido' , 'qtCotas']]
+        df_posicao = self.consultar_posicoes_jcot()[[ 'cd_cotista' , 'cpfcnpjCotista', 'fundo', 'valor_cota' , 'cotatipo' , 'vlCorrigido' , 'qtCotas' , "tipoCotista"]]
 
-        df_posicao['tipoCotista'] = df_posicao['cpfcnpjCotista'].apply(self.get_tipo_cotista_5401)
 
         n_posicao = df_posicao
 
-        if not n_posicao.empty:
+        if not n_posicao.is_empty():
 
-            total_cotistas = n_posicao['cpfcnpjCotista'].drop_duplicates().values
+            print ("start_cotistas")
 
-            xml_fundos = self.criar_fundo(self.CNPJ_EMISSOR , str(round(n_posicao['qtCotas'].sum() ,2)) , len(total_cotistas) ,  str(round(n_posicao['vlCorrigido'].sum() , 2)) )
+            total_cotistas = n_posicao.filter(~n_posicao.is_duplicated())
+
+            xml_fundos = self.criar_fundo(self.CNPJ_EMISSOR , str(round(n_posicao.select(pl.col("qtCotas").sum()).item() ,2)) , len(total_cotistas) , str(round(n_posicao.select(pl.col("vlCorrigido").sum()).item() ,2)) )
 
 
-            cotistas = n_posicao.drop_duplicates('cpfcnpjCotista')
+            cotistas = n_posicao.select(["cpfcnpjCotista" , "tipoCotista"]).unique()
+
+            lista_cotistas = [{"cpfcnpjCotista": item[0]  , "tipoCotista": item[1]} for item in cotistas.iter_rows()]
 
             job_cotista = partial(self.job_criar_cotista_unico ,  n_posicao=n_posicao , cotistas=xml_fundos['cotistas'])
 
 
             with ThreadPoolExecutor() as executor:
-                executor.map( job_cotista , cotistas.to_dict('records'))
+                executor.map( job_cotista , lista_cotistas)
 
             return xml_fundos
 

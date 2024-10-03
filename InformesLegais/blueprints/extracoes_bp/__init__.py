@@ -39,11 +39,12 @@ def extrair_posicoes_o2():
 @extracoes.route("/atualizar_ativos_intactus")
 def atualizar_ativos_02():
     '''atualizar a base de ativos do o2 '''
-    #todo atualizar essa tarefa , para buscar os dados do o2 , com as suas respectivas correlações corretas
+
     db.ativoso2.delete_many({})
-    extrator_intactus = Extracao_Quantidades_O2( client, datetime(2024,6,28) )
-    fundos = extrator_intactus.get_lista_fundos()
+    fundos = ServiceExtracaoJcotO2().ExtracaoAtivoso2()
     db.ativoso2.insert_many(fundos)
+
+
 
     return jsonify({"messsage": "Ativos Atualizados"})
 
@@ -54,6 +55,17 @@ def get_investidores():
     '''extracao de investidores o2'''
 
     ServiceInvestidores().ExtracaoDadosInvestidores()
+
+
+    return jsonify({"messsage": "Dados de Investidores Enviados para Extração"})
+
+
+
+@extracoes.route("/atualizar_tipo_cotista_o2")
+def atualizartipoCotista():
+    '''extracao de investidores o2'''
+
+    ServiceInvestidores().AtualizarTipodeCotistas()
 
 
     return jsonify({"messsage": "Dados de Investidores Enviados para Extração"})

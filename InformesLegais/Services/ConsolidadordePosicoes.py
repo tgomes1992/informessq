@@ -5,6 +5,8 @@ from InformesLegais.db import db
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pymongo import MongoClient
+from . import ServiceInvestidores
+
 
 load_dotenv()
 
@@ -22,6 +24,7 @@ class ControllerConsolidaPosicoes:
              serverSelectionTimeoutMS=40000   )
         self.db = self.client['informes_legais']
         self.app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
+        self.service_investidores = ServiceInvestidores()
 
 
     def job_processar_posicao_jcot(self  , posicao_jcot):
@@ -44,6 +47,8 @@ class ControllerConsolidaPosicoes:
 
             db.posicaoconsolidada.delete_many({})
 
+            df_escritural['tipoCotista'] = df['cpfcnpjCotista'].apply(self.service_investidores.get_tipo_cotista_5401)
+
 
             self.db['posicaoconsolidada'].insert_many(df_escritural.to_dict('records'))
 
@@ -51,11 +56,6 @@ class ControllerConsolidaPosicoes:
                 executor.map(self.job_processar_posicao_jcot , df_cetip_bolsa.to_dict('records'))
 
 
-            # for item in jcot:
-            #     if '9358105000191' in item['cpfcnpjCotista'] or '9346601000125' in item['cpfcnpjCotista']:
-            #         self.processar_posicoes_o2(item)
-            #     else:
-            #         db.posicaoconsolidada.insert_one(item)
 
 
     def processar_posicoes_o2(self , posicao_jcot):
@@ -79,6 +79,7 @@ class ControllerConsolidaPosicoes:
                     "fundo": posicao_jcot['fundo'],
                     "data": posicao_jcot['data'],
                     "valor_cota": posicao_jcot['valor_cota'],
+                    "tipoCotista": self.service_investidores.get_tipo_cotista_5401(str(item['cpfcnpjInvestidor']))
                 }
 
                 with self.app.app_context():
