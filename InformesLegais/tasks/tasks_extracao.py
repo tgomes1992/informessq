@@ -120,7 +120,6 @@ def extrair_posicao_o2(ativo_o2 , header):
         if not df_posicao.empty:
             db.posicoeso2.insert_many(df_posicao.to_dict('records'))
 
-        # trava = db.posicoeso2.find_one({"fundo": fundo['codigo'], "data": fundo['dataPosicao']})
 
     print (f"Extração do fundo {ativo_o2['cd_escritural']} concluída")
     return f"Extração da posição do ativo {ativo_o2['descricao']} Concluída"
