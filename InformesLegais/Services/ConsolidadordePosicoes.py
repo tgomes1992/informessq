@@ -37,11 +37,11 @@ class ControllerConsolidaPosicoes:
 
     def get_posicoesjcot(self , data):
         with self.app.app_context():
-            fundos = db.fundos.find({"codigo":"10961_SUB01"})
+            fundos = db.fundos.find({})
 
             codigos = [fundo['codigo'] for fundo in fundos]
 
-            jcot = db.posicoesjcot.find({"data": data ,  'fundo': "10961_SUB01"})
+            jcot = db.posicoesjcot.find({"data": data })
             df = pd.DataFrame.from_dict(jcot)
 
 
