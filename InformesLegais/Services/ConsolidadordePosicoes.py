@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pymongo import MongoClient
 from . import ServiceInvestidores
 from functools import partial
-
+from decimal import Decimal
 
 load_dotenv()
 
@@ -37,10 +37,14 @@ class ControllerConsolidaPosicoes:
 
     def get_posicoesjcot(self , data):
         with self.app.app_context():
-            fundos = db.fundos.find({})
+            fundos = db.fundos.find({"codigo":"10961_SUB01"})
+
             codigos = [fundo['codigo'] for fundo in fundos]
-            jcot = db.posicoesjcot.find({"data": data})
+
+            jcot = db.posicoesjcot.find({"data": data ,  'fundo': "10961_SUB01"})
             df = pd.DataFrame.from_dict(jcot)
+
+
             df_cetip_bolsa = df[df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
             df_escritural = df[~df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
             db.posicaoconsolidada.delete_many({"data": data})
@@ -52,19 +56,18 @@ class ControllerConsolidaPosicoes:
 
 
 
-
     def processar_posicoes_o2(self , posicao_jcot, data):
         posicoes_o2 = self.get_posicoes_o2(posicao_jcot, data)
 
-
         try:
             for item in posicoes_o2.to_dict('records'):
+                print (item)
                 ndict = {
                     "cd_cotista": str(item['cpfcnpjInvestidor']) ,
                     "nmCotista": item['nomeInvestidor'],
                     "cpfcnpjCotista": str(item['cpfcnpjInvestidor']),
                     "totalCotista": "",
-                    "qtCotas": str(round(item['quantidadeTotalDepositada'] , 8 ) ),
+                    "qtCotas": str(Decimal(str(item['quantidadeTotalDepositada'])) ),
                     "vlAplicacao": str(round(item['quantidadeTotalDepositada'] * float(posicao_jcot['valor_cota']) , 2)),
                     "vlCorrigido":  str(round(item['quantidadeTotalDepositada'] * float(posicao_jcot['valor_cota']) , 2)),
                     "vlIof": "0",
