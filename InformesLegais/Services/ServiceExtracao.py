@@ -19,7 +19,7 @@ class ServiceExtracaoJcotO2(ServiceBase):
                 'Content-Type': 'application/json'
             }
 
-            self.db.posicoeso2.delete_many({})
+            self.db.posicoeso2.delete_many({"data": data})
 
             fundos = self.db.ativoso2.find({"cd_jcot": {"$ne": "Sem Código"}})
 
@@ -29,6 +29,7 @@ class ServiceExtracaoJcotO2(ServiceBase):
                 item['data'] = data.strftime("%Y-%m-%d")
                 extrair_posicao_o2.delay(item, headers)
 
+
     def ExtracaoJcot(self ,  data):
         '''a data precisa ser em formato datetime ,
             função que cria os jobs para extrair dados do jcot
@@ -37,7 +38,7 @@ class ServiceExtracaoJcotO2(ServiceBase):
 
             fundos = self.db.fundos.find({})
 
-            self.db.posicoesjcot.delete_many({})
+            self.db.posicoesjcot.delete_many({"data": data})
 
             for fundo in fundos:
                 fundo['_id'] = str(fundo['_id'])

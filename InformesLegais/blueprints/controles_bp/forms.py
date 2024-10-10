@@ -6,13 +6,14 @@ from InformesLegais.utils.ExtraInfos import ExtraInfos
 
 
 
-
-
 class ConsolidarPosicoesForm(FlaskForm):
-    
-    data = SelectField('Data', choices=ExtraInfos().periodos_posicao(),validators=[DataRequired()])
-    
+    data = SelectField('Data', validators=[DataRequired()])
     submit = SubmitField('Consolidar')
+
+    def __init__(self, periodos, *args, **kwargs):
+        super(ConsolidarPosicoesForm, self).__init__(*args, **kwargs)
+        self.data.choices = periodos
+
 
 
 class BuscarPosicoesForm(FlaskForm):

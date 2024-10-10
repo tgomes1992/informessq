@@ -111,10 +111,7 @@ def extrair_posicao_o2(ativo_o2 , header):
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
     with app.app_context():
 
-        print (ativo_o2)
-        
         valor_de_cota = get_valor_de_cota_jcot(ativo_o2)
-        
         df_posicao = api.get_posicao( ativo_o2['data'] , ativo_o2['descricao'] ,  ativo_o2['cd_jcot'] , header , valor_de_cota , ativo_o2)
 
         if not df_posicao.empty:

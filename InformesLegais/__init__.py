@@ -37,6 +37,12 @@ def create_app():
         return jsonify(id)
 
 
+    @app.route("/home")
+    def new_home():
+
+
+        return render_template("new_home.html")
+
 
     app.config['DEBUG'] = True
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')

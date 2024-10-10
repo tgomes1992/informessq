@@ -6,6 +6,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from pymongo import MongoClient
 from . import ServiceInvestidores
+from functools import partial
 
 
 load_dotenv()
@@ -28,7 +29,8 @@ class ControllerConsolidaPosicoes:
 
 
     def job_processar_posicao_jcot(self  , posicao_jcot):
-        self.processar_posicoes_o2(posicao_jcot)
+        data = "2024-09-30"
+        self.processar_posicoes_o2(posicao_jcot ,data)
 
 
 
@@ -38,28 +40,21 @@ class ControllerConsolidaPosicoes:
             fundos = db.fundos.find({})
             codigos = [fundo['codigo'] for fundo in fundos]
             jcot = db.posicoesjcot.find({"data": data})
-
             df = pd.DataFrame.from_dict(jcot)
-
             df_cetip_bolsa = df[df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
-
             df_escritural = df[~df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
-
-            db.posicaoconsolidada.delete_many({})
-
+            db.posicaoconsolidada.delete_many({"data": data})
             df_escritural['tipoCotista'] = df['cpfcnpjCotista'].apply(self.service_investidores.get_tipo_cotista_5401)
-
-
             self.db['posicaoconsolidada'].insert_many(df_escritural.to_dict('records'))
-
+            funcao_p = partial(self.job_processar_posicao_jcot , data = data)
             with ThreadPoolExecutor() as executor:
-                executor.map(self.job_processar_posicao_jcot , df_cetip_bolsa.to_dict('records'))
+                executor.map(self.job_processar_posicao_jcot  , df_cetip_bolsa.to_dict('records'))
 
 
 
 
-    def processar_posicoes_o2(self , posicao_jcot):
-        posicoes_o2 = self.get_posicoes_o2(posicao_jcot)
+    def processar_posicoes_o2(self , posicao_jcot, data):
+        posicoes_o2 = self.get_posicoes_o2(posicao_jcot, data)
 
 
         try:
@@ -69,7 +64,7 @@ class ControllerConsolidaPosicoes:
                     "nmCotista": item['nomeInvestidor'],
                     "cpfcnpjCotista": str(item['cpfcnpjInvestidor']),
                     "totalCotista": "",
-                    "qtCotas": str(item['quantidadeTotalDepositada']),
+                    "qtCotas": str(round(item['quantidadeTotalDepositada'] , 8 ) ),
                     "vlAplicacao": str(round(item['quantidadeTotalDepositada'] * float(posicao_jcot['valor_cota']) , 2)),
                     "vlCorrigido":  str(round(item['quantidadeTotalDepositada'] * float(posicao_jcot['valor_cota']) , 2)),
                     "vlIof": "0",
@@ -88,13 +83,13 @@ class ControllerConsolidaPosicoes:
             print(e)
 
 
-    def get_posicoes_o2(self , item):
+    def get_posicoes_o2(self , item, data):
         try:
             if item['cpfcnpjCotista'] == '9346601000125':
-                posicoeso2 = self.db['posicoeso2'].find({'cd_jcot': item['fundo'],  "depositaria":"BOLSA"})
+                posicoeso2 = self.db['posicoeso2'].find({'cd_jcot': item['fundo'],  "depositaria":"BOLSA" , "data": data})
                 return pd.DataFrame(posicoeso2)
             elif item['cpfcnpjCotista'] == '9358105000191':
-                posicoeso2 = self.db['posicoeso2'].find({'cd_jcot': item['fundo'], "depositaria": "CETIP"})
+                posicoeso2 = self.db['posicoeso2'].find({'cd_jcot': item['fundo'], "depositaria": "CETIP" ,  "data": data})
                 return pd.DataFrame(posicoeso2)
             else:
                 return pd.DataFrame(item)

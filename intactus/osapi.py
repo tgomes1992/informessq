@@ -141,7 +141,7 @@ class o2Api():
         df['cd_escritural'] =  item['cd_escritural']
         df['cd_jcot'] = cd_jcot
         df['valor_cota'] = cota
-        df['data'] = df['data'].apply(lambda x : x[0:10])
+        df['data'] = data
 
         return df
 

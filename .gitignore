@@ -4,3 +4,7 @@ __pycache__
 *.xml*
 ajustador.py
 validacao_teste.py
+arquivos
+arquivos_gerados
+old_files
+node_modules

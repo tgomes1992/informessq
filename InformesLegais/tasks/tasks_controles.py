@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from GERACAO_5401.extracao_5401_quantidades_o2 import o2Api
 import pandas as pd
-# from InformesLegais.Services import TaskService
+
 
 
 @celery_app.task(name="Consolidar Posições")
