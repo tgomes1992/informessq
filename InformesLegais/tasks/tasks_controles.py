@@ -1,6 +1,7 @@
 from InformesLegais.celery import celery_app
 from InformesLegais.db import db
-from InformesLegais.Services import ControllerConsolidaPosicoes ,  TaskService
+from InformesLegais.Services.TaskService import  TaskService
+from InformesLegais.Services import ControllerConsolidaPosicoes
 from flask import Flask
 import os
 from dotenv import load_dotenv
@@ -25,3 +26,13 @@ def task_consolidar_posicoes(data ,  task_id):
     service_task.finish_task(task_id)
 
     return "Posições Consolidadas com sucesso!"
+
+
+
+
+@celery_app.task(name="Encerrar Task")
+def finalizar_task(results , id):
+
+    TaskService().finish_task(id)
+
+    return "Task Finalizada"

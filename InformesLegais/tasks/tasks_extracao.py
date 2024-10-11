@@ -1,4 +1,6 @@
-from InformesLegais.celery import celery_app 
+import time
+
+from InformesLegais.celery import celery_app
 from InformesLegais.db import db 
 from JCOTSERVICE import RelPosicaoFundoCotistaService
 from flask import Flask
@@ -17,8 +19,6 @@ def extrair_posicao_jcot_unique(fundo):
     '''função para realizar extração de posições do jcot '''
     service = RelPosicaoFundoCotistaService("roboescritura", "Senh@123")
     posicao = service.get_posicoes_json(fundo)
-
-    print (fundo)
 
     try:
         app = Flask(__name__)
@@ -105,7 +105,6 @@ def extrair_posicao_o2_geral():
 @celery_app.task(name="Extrair Posições O2")
 def extrair_posicao_o2(ativo_o2 , header):
     api = o2Api("thiago.conceicao", "DBCE0923-9CE3-4597-9E9A-9EAE7479D897")
-
 
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')

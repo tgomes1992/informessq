@@ -1,4 +1,4 @@
-from flask import Blueprint , request , jsonify , render_template , redirect , url_for , send_file
+from flask import Blueprint , request , jsonify , render_template , redirect , url_for , send_file ,  flash
 from JCOTSERVICE import ListFundosService , RelPosicaoFundoCotistaService
 from bson.objectid import ObjectId
 from InformesLegais.db import db
@@ -26,8 +26,10 @@ def buscarFundosJcot():
         if item['codigo'] not in codigos:
             db.fundos.insert_one(item)
 
+    flash(f"Fundos Sincronizadas", 'succes')
 
-    return jsonify({"message": "Fundos cadastrados com sucesso!"})
+
+    return redirect(url_for("cadastros.list_fundos_template"))
 
 @cadastros.route("/administradores")
 def administradores():

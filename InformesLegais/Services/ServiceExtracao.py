@@ -1,7 +1,10 @@
 from .ServiceBase import ServiceBase
+from InformesLegais.Services.TaskService import TaskService
 from InformesLegais.tasks import extrair_posicao_jcot_unique ,  extrair_posicao_o2
+from InformesLegais.tasks.tasks_controles import finalizar_task
 from datetime import datetime
 import pandas as pd
+from celery import chord
 
 
 
@@ -19,15 +22,22 @@ class ServiceExtracaoJcotO2(ServiceBase):
                 'Content-Type': 'application/json'
             }
 
-            self.db.posicoeso2.delete_many({"data": data})
+            self.db.posicoeso2.delete_many({"data": data.strftime("%Y-%m-%d")})
 
             fundos = self.db.ativoso2.find({"cd_jcot": {"$ne": "Sem Código"}})
 
+            task_list = []
+
+
             for item in fundos:
-                print (item)
                 item['_id'] = str(item['_id'])
                 item['data'] = data.strftime("%Y-%m-%d")
-                extrair_posicao_o2.delay(item, headers)
+                # extrair_posicao_o2.delay(item, headers)
+                task_list.append(extrair_posicao_o2.s(item , headers))
+
+            task = TaskService().start_task(f"Baixar posições o2 {data.strftime("%Y-%m-%d")}")
+
+            chord(task_list)(finalizar_task.s(task))
 
 
     def ExtracaoJcot(self ,  data):
@@ -37,15 +47,18 @@ class ServiceExtracaoJcotO2(ServiceBase):
         with self.app.app_context():
 
             fundos = self.db.fundos.find({})
+            self.db.posicoesjcot.delete_many({"data": data.strftime("%Y-%m-%d")})
 
-            self.db.posicoesjcot.delete_many({"data": data})
+            task_list = []
 
             for fundo in fundos:
                 fundo['_id'] = str(fundo['_id'])
                 fundo['dataPosicao'] = data.strftime("%Y-%m-%d")
                 fundo['fundo'] = fundo['codigo']
-                extrair_posicao_jcot_unique.delay(fundo)
+                task_list.append(extrair_posicao_jcot_unique.s(fundo))
 
+            task = TaskService().start_task(f"Baixar posições Jcot {data.strftime("%d/%m/%Y")}")
+            chord(task_list)(finalizar_task.s(task))
 
     def get_codigo_jcot(self ,  lista_codigos , tipo):
         for item in lista_codigos:

@@ -1,5 +1,5 @@
 from flask.views import MethodView
-from flask import render_template , request , jsonify
+from flask import render_template , request , jsonify , flash ,  redirect , url_for
 from . import conroles_bp
 from .forms import ConsolidarPosicoesForm
 from InformesLegais.tasks.tasks_controles import task_consolidar_posicoes
@@ -27,8 +27,9 @@ class ConsolidarPosicoes(MethodView):
 
         task_consolidar_posicoes.delay(request.form['data'] ,  task_id)
 
-        return jsonify({"message": "Posição enviadas para consolidação"})
-    
+        flash(f"Posições Enviadas para consolidação", 'succes')
+
+        return redirect(url_for("controles.consolidarPosicoes"))
     
 
 conroles_bp.add_url_rule('/consolida', view_func=ConsolidarPosicoes.as_view("consolidarPosicoes"))

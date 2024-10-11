@@ -22,6 +22,7 @@ class SolicitarPosicoes(MethodView):
 
 
             ServiceExtracaoJcotO2().ExtracaoJcot(data_datetime)
+
             ServiceExtracaoJcotO2().Extracaoo2(data_datetime)
 
 
