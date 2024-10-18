@@ -45,6 +45,29 @@ class ExtraInfos:
 
         with app.app_context():
 
+            periodos = db.posicaoconsolidada.aggregate([
+            {
+              '$project': {
+                'periodo': { '$substr': ['$data', 0, 10] }
+              }
+            },
+            { '$group': { '_id': '$periodo' } }
+          ])
+
+            periodos_formatados = [self.formatar_periodos(item['_id']) for item in periodos]
+
+
+
+            return  periodos_formatados
+
+
+    def periodos_posicao_jcot(self):
+        app = Flask(__name__)
+
+        app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
+
+        with app.app_context():
+
             periodos = db.posicoesjcot.aggregate([
             {
               '$project': {

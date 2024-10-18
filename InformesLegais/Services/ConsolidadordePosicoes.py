@@ -29,7 +29,7 @@ class ControllerConsolidaPosicoes:
 
 
     def job_processar_posicao_jcot(self  , posicao_jcot):
-        data = "2024-09-30"
+        data = "2024-03-29"
         self.processar_posicoes_o2(posicao_jcot ,data)
 
 

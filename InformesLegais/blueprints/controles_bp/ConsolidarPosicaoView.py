@@ -12,9 +12,9 @@ class ConsolidarPosicoes(MethodView):
     def get(self):
         # Code to handle GET request
 
-        periodos = ExtraInfos().periodos_posicao()
+        periodos = ExtraInfos().periodos_posicao_jcot()
         
-        form  = ConsolidarPosicoesForm(periodos)
+        form = ConsolidarPosicoesForm(periodos)
               
         return render_template("Controles/ConsolidadordePosicoes.html" , form=form)
 
