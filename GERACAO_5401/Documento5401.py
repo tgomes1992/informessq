@@ -2,24 +2,38 @@ from pymongo import MongoClient
 import pandas as pd
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+from pymongo import MongoClient
 
 
 
 class Documento5401:
 
 
-    def __init__(self):
-        self.documento_5401 = self.documento_5401()
+    def __init__(self , adm,  data):
+        self.data = data
+        self.documento_5401 = self.documento_5401(adm)
         self.elemento_fundos = self.criar_fundos()
 
 
-    def criar_documento_inicial(self):
+
+    def get_dados_adm(self, adm):
+        client = MongoClient('localhost', 27017)
+        adm = client['informes_legais']['administradores'].find_one({"cnpj": adm})
+
+        return dict(adm)
+
+    def criar_documento_inicial(self ,  adm):
+
+        dados_adm = self.get_dados_adm(adm)
+
+        data_ajustada = "-".join(self.data.split('-')[0:2])
+
         documento  = ET.Element("documento")
-        documento.set("cnpj" , "36113886000191" )
+        documento.set("cnpj" , dados_adm['cnpj'] )
         documento.set('codigoDocumento' ,  '5401')
         documento.set("tipoRemessa" , 'I')
-        documento.set("dataBase" ,  '2024-05')
-        documento.set('nomeResponsavel' ,  "THIAGO MENEZES")
+        documento.set("dataBase" ,  data_ajustada)
+        documento.set('nomeResponsavel' ,  dados_adm['representante'])
         documento.set("emailResponsavel" , "thiago.menezes@oliveiratrust.com.br")
         documento.set("telefoneResponsavel" , "02135140000")
         return documento
@@ -34,8 +48,8 @@ class Documento5401:
     
     
 
-    def documento_5401(self):
-        base = self.criar_documento_inicial()
+    def documento_5401(self , adm):
+        base = self.criar_documento_inicial(adm)
  
         return base
  

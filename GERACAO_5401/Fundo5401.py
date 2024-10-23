@@ -12,10 +12,11 @@ import polars as pl
 class Fundo5401():
 
 
-    def __init__(self , CNPJ_EMISSOR):
+    def __init__(self , CNPJ_EMISSOR , data):
         self.CNPJ_EMISSOR = CNPJ_EMISSOR
         self.client = MongoClient('localhost', 27017)
         self.lista_cotistas = []
+        self.data = data
 
 
     def consultar_fundos_5401(self):
@@ -55,6 +56,9 @@ class Fundo5401():
                             '$match': {
                                 'fundo': {
                                     '$in': lista_codigos
+                                } ,
+                                'data': {
+                                    "$eq":  self.data
                                 }
                             }
                         }

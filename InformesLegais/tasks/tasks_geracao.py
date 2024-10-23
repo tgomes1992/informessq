@@ -14,8 +14,8 @@ from InformesLegais.Services.TaskService import TaskService
 
 
 
-def job_criar_fundos(cnpj, documento_5401):
-    gerador_fundo_5401 = Fundo5401(cnpj)
+def job_criar_fundos(cnpj, documento_5401 , data):
+    gerador_fundo_5401 = Fundo5401(cnpj , data)
     fundo = gerador_fundo_5401.transforma_posicao_posicao_informe()
     if fundo is not None:
         documento_5401.adicionar_fundos(fundo)
@@ -37,19 +37,24 @@ def job_criar_fundos_json(cnpj):
 
 
 @celery_app.task(name="GERAR 5401")
-def gerar_5401_por_adm(adm , id):
+def gerar_5401_por_adm(adm ,  data, id):
     '''adm precisa ser uma string com o cnpj com 14 digitos do adm'''
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
     with app.app_context():
 
+        print (data)
+
+
         fundos_por_adm = db.fundos.find({"administrador": adm})
+
+        # db.posicaoconsolidada.delete_many({})
 
         df = pd.DataFrame.from_dict(fundos_por_adm)
         cnpjs = list(df['cnpj'].drop_duplicates())
 
-        documento_5401 = Documento5401()
-        criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401)
+        documento_5401 = Documento5401(adm , data )
+        criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401 ,  data=data)
 
         try:
             print ("geração iniciada !!!")
@@ -60,7 +65,7 @@ def gerar_5401_por_adm(adm , id):
             documento = documento_5401.retornar_arquivo_5401_completo()
             ajustador = XML_5401(documento)
             ajustador.ajustar_arquivo_5401()
-            ajustador.reescrever_xml(f"{adm}.xml")
+            ajustador.reescrever_xml(f"{adm}_{data.replace('-' , '')}.xml")
             print (id)
             TaskService().finish_task(id)
 

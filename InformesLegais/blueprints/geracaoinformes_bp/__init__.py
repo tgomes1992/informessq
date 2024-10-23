@@ -14,16 +14,16 @@ def gerar_arquivo_5401():
     return render_template("form_geracao_5401.html" , form = form)
 
 
-
-
 @geracao_informes_bp.route("/5401" , methods=['POST'])
 def gerar_informe_5401():
 
     try:
 
         adm = request.form['administrador']
+        data = request.form['data']
 
-        geracao = ServiceGeracao5401(adm)
+
+        geracao = ServiceGeracao5401(adm , data)
         geracao.gerar_5401_por_adm(adm)
 
 

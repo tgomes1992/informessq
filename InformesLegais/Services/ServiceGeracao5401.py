@@ -11,9 +11,10 @@ from InformesLegais.Services.TaskService import TaskService
 class ServiceGeracao5401(ServiceBase):
 
 
-    def __init__(self , adm):
+    def __init__(self , adm , data ):
         self.adm = adm
-        self.documento_5401 = Documento5401()
+        self.data = data
+        self.documento_5401 = Documento5401(adm,  data)
 
     def job_criar_fundos(self ,  cnpj , documento_5401):
         gerador_fundo_5401 = Fundo5401(cnpj)
@@ -57,7 +58,7 @@ class ServiceGeracao5401(ServiceBase):
 
     def gerar_5401_por_adm(self,adm):
         id = TaskService().start_task(f"Geração 5401 {adm}")
-        gerar_5401_por_adm.delay(adm , id)
+        gerar_5401_por_adm.delay(adm , self.data , id)
 
     def gerar_5401_por_adm_json(self, adm):
         id = TaskService().start_task(f"Geração 5401 JSON {adm}")
