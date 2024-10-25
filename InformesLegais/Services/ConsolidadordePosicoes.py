@@ -28,8 +28,7 @@ class ControllerConsolidaPosicoes:
         self.service_investidores = ServiceInvestidores()
 
 
-    def job_processar_posicao_jcot(self  , posicao_jcot):
-        data = "2024-03-29"
+    def job_processar_posicao_jcot(self  , posicao_jcot , data):
         self.processar_posicoes_o2(posicao_jcot ,data)
 
 
@@ -47,22 +46,16 @@ class ControllerConsolidaPosicoes:
 
             df_cetip_bolsa = df[df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
             df_escritural = df[~df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
+
             db.posicaoconsolidada.delete_many({"data": data})
             df_escritural['tipoCotista'] = df['cpfcnpjCotista'].apply(self.service_investidores.get_tipo_cotista_5401)
             self.db['posicaoconsolidada'].insert_many(df_escritural.to_dict('records'))
-            funcao_p = partial(self.job_processar_posicao_jcot , data = data)
+            funcao_p = partial(self.processar_posicoes_o2 , data = data)
             with ThreadPoolExecutor() as executor:
-                executor.map(self.job_processar_posicao_jcot  , df_cetip_bolsa.to_dict('records'))
+                executor.map(funcao_p  , df_cetip_bolsa.to_dict('records'))
 
-
-
-    def processar_posicoes_o2(self , posicao_jcot, data):
-        posicoes_o2 = self.get_posicoes_o2(posicao_jcot, data)
-
-        try:
-            for item in posicoes_o2.to_dict('records'):
-                print (item)
-                ndict = {
+    def criar_posicao_o2(self , item,  posicao_jcot ):
+        return {
                     "cd_cotista": str(item['cpfcnpjInvestidor']) ,
                     "nmCotista": item['nomeInvestidor'],
                     "cpfcnpjCotista": str(item['cpfcnpjInvestidor']),
@@ -80,8 +73,21 @@ class ControllerConsolidaPosicoes:
                     "tipoCotista": self.service_investidores.get_tipo_cotista_5401(str(item['cpfcnpjInvestidor']))
                 }
 
-                with self.app.app_context():
-                    self.db['posicaoconsolidada'].insert_one(ndict)
+
+
+
+    def processar_posicoes_o2(self , posicao_jcot, data):
+        posicoes_o2 = self.get_posicoes_o2(posicao_jcot, data)
+
+        try:
+
+            base = partial(self.criar_posicao_o2 , posicao_jcot=posicao_jcot )
+            posicoes_o2 = list(map(base, posicoes_o2.to_dict("records")))
+
+            with self.app.app_context():
+                self.db['posicaoconsolidada'].insert_many(posicoes_o2)
+
+
         except Exception as e:
             print(e)
 
