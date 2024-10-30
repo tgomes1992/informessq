@@ -5,7 +5,7 @@ from GERACAO_5401.Fundo5401 import Fundo5401
 from GERACAO_5401.Documento5401 import Documento5401
 from GERACAO_5401.xml_5401 import XML_5401
 from concurrent.futures import ThreadPoolExecutor
-from InformesLegais.tasks import gerar_5401_por_adm ,gerar_5401_por_adm_json
+from InformesLegais.tasks import gerar_5401_por_adm , gerar_5401_por_adm_175
 from InformesLegais.Services.TaskService import TaskService
 
 class ServiceGeracao5401(ServiceBase):
@@ -60,6 +60,7 @@ class ServiceGeracao5401(ServiceBase):
         id = TaskService().start_task(f"Geração 5401 {adm}")
         gerar_5401_por_adm.delay(adm , self.data , id)
 
-    def gerar_5401_por_adm_json(self, adm):
-        id = TaskService().start_task(f"Geração 5401 JSON {adm}")
-        gerar_5401_por_adm_json.delay(adm, id)
+
+    def gerar_5401_por_adm_175(self,adm):
+        id = TaskService().start_task(f"Geração 5401 175 {adm}")
+        gerar_5401_por_adm_175.delay(adm , self.data , id)

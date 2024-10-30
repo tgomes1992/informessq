@@ -45,6 +45,8 @@ class Documento5401:
     
     def adicionar_fundos(self, fundo):
         self.elemento_fundos.append(fundo)
+        
+    
     
     
 
