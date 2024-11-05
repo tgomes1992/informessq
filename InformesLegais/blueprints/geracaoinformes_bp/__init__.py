@@ -21,12 +21,14 @@ def gerar_informe_5401():
 
         adm = request.form['administrador']
         data = request.form['data']
+        tipo = request.form['tipos_5401']
 
 
-        geracao = ServiceGeracao5401(adm , data)
-        # geracao.gerar_5401_por_adm(adm)
 
-        geracao.gerar_5401_por_adm_175(adm)
+        geracao = ServiceGeracao5401(adm , data , tipo)
+        geracao.gerar_5401(adm)
+
+
 
         flash(f"Arquivo enviado para geração" ,  'succes')
 

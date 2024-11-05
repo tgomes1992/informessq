@@ -194,23 +194,16 @@ class XML_5401:
     def ajuste_pco(self, fundo):
         pco = []
         try:
-            
             fundo_parse = ET.fromstring(ET.tostring(fundo))
-                   
             cotistas = fundo_parse.findall(".//cotista")
-            
             for cotista in cotistas:
                 try:
                     string_cotista = cotista.attrib.get("identificacao", "")
                     tipo_pessoa = cotista.attrib.get("tipoPessoa", "" )
                     classificacao = cotista.attrib.get("classificacao", "" )
-                    
                     cotas = cotista.findall(".//cota")
-                    
                     cotas_df = self.cotas_to_dataframe(cotas)
-                    
-                    
-                   
+
                     if self.valida_pco(string_cotista):
                         corpo_pco = {
                             "identificacao": string_cotista , 
@@ -220,17 +213,13 @@ class XML_5401:
                            
                         }
                         pco.append(corpo_pco)
-                        
-                        
                     else:
-
                         continue
                 except Exception as e :
                     print (e)
         
             return pco
 
-            
         except Exception as e :
             print (e)
             

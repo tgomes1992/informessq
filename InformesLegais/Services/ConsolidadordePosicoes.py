@@ -48,6 +48,7 @@ class ControllerConsolidaPosicoes:
             df_escritural = df[~df['cpfcnpjCotista'].isin(['9358105000191' , '9346601000125' ])]
 
             db.posicaoconsolidada.delete_many({"data": data})
+
             df_escritural['tipoCotista'] = df['cpfcnpjCotista'].apply(self.service_investidores.get_tipo_cotista_5401)
             self.db['posicaoconsolidada'].insert_many(df_escritural.to_dict('records'))
             funcao_p = partial(self.processar_posicoes_o2 , data = data)

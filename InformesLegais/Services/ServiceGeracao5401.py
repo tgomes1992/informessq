@@ -11,10 +11,11 @@ from InformesLegais.Services.TaskService import TaskService
 class ServiceGeracao5401(ServiceBase):
 
 
-    def __init__(self , adm , data ):
+    def __init__(self , adm , data , tipo ):
         self.adm = adm
         self.data = data
-        self.documento_5401 = Documento5401(adm,  data)
+        self.tipo = tipo
+        self.documento_5401 = Documento5401(adm,  data ,  tipo)
 
     def job_criar_fundos(self ,  cnpj , documento_5401):
         gerador_fundo_5401 = Fundo5401(cnpj)
@@ -64,3 +65,9 @@ class ServiceGeracao5401(ServiceBase):
     def gerar_5401_por_adm_175(self,adm):
         id = TaskService().start_task(f"Geração 5401 175 {adm}")
         gerar_5401_por_adm_175.delay(adm , self.data , id)
+
+    def gerar_5401(self ,adm):
+        if self.tipo == "175":
+            self.gerar_5401_por_adm_175(adm)
+        else:
+            self.gerar_5401_por_adm(adm)

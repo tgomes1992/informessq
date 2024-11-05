@@ -14,8 +14,6 @@ locale.setlocale(locale.LC_TIME, 'pt_BR')
 class ExtraInfos:
 
 
-
-
     def get_admins(self):
         app = Flask(__name__)
 
@@ -33,10 +31,8 @@ class ExtraInfos:
 
             return  adm_formatados
 
-
     def formatar_adms(self , adm_dict):
         return (adm_dict['cnpj'] ,f"{adm_dict['cnpj']} - {adm_dict['nome']}" )
-
 
     def periodos_posicao(self):
         app = Flask(__name__)
@@ -59,7 +55,6 @@ class ExtraInfos:
 
 
             return  periodos_formatados
-
 
     def periodos_posicao_jcot(self):
         app = Flask(__name__)
@@ -88,4 +83,6 @@ class ExtraInfos:
         return (periodo, periodo_datetime)
 
 
+    def tipos_5401(self):
+        return [("175" , "Após 175"  ) , ( "normal" , "Antes 175"   )]
 

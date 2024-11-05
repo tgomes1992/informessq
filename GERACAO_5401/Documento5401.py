@@ -9,11 +9,10 @@ from pymongo import MongoClient
 class Documento5401:
 
 
-    def __init__(self , adm,  data):
+    def __init__(self , adm,  data , tipo):
         self.data = data
         self.documento_5401 = self.documento_5401(adm)
-        self.elemento_fundos = self.criar_fundos()
-
+        self.elemento_fundos = self.criar_fundos(tipo)
 
 
     def get_dados_adm(self, adm):
@@ -38,10 +37,14 @@ class Documento5401:
         documento.set("telefoneResponsavel" , "02135140000")
         return documento
     
-    def criar_fundos(self):
+    def criar_fundos(self , tipo=None):
+        if tipo == "175":
+            classes = ET.Element("classes")
+            return classes
         fundos = ET.Element("fundos")
         return fundos
-    
+
+
     
     def adicionar_fundos(self, fundo):
         self.elemento_fundos.append(fundo)

@@ -11,19 +11,16 @@ load_dotenv()
 class SolicitarArquivo5401(FlaskForm):
     data = SelectField('Data', validators=[DataRequired()])
     administrador = SelectField("Administrador", validators=[DataRequired()])
-    submit = SubmitField('Consolidar')
+    tipos_5401 = SelectField("Tipos 5401", validators=[DataRequired()])
+
+    submit = SubmitField('Gerar Arquivo')
 
     def __init__(self, *args, **kwargs):
         super(SolicitarArquivo5401, self).__init__(*args, **kwargs)
-
-        # Create a new ExtraInfos instance for every new form instance
         infos = ExtraInfos()
-
-        # Populate the 'data' field choices
         self.data.choices = infos.periodos_posicao()
-
-        # Populate the 'administrador' field choices
         self.administrador.choices = infos.get_admins()
+        self.tipos_5401.choices = infos.tipos_5401()
 
 
 

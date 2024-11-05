@@ -65,7 +65,7 @@ def gerar_5401_por_adm(adm ,  data, id):
         df = pd.DataFrame.from_dict(fundos_por_adm)
         cnpjs = list(df['cnpj'].drop_duplicates())
 
-        documento_5401 = Documento5401(adm , data )
+        documento_5401 = Documento5401(adm , data , "normal" )
         criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401 ,  data=data)
 
         try:
@@ -105,7 +105,7 @@ def gerar_5401_por_adm_175(adm ,  data, id):
             df = pd.DataFrame.from_dict(fundos_por_adm)
             cnpjs = list(df['cnpj'].drop_duplicates())
 
-            documento_5401 = Documento5401(adm , data )
+            documento_5401 = Documento5401(adm , data , '175' )
             criacao_fundos = partial(job_criar_fundos_175, documento_5401=documento_5401 ,  data=data)
 
             print ("geração iniciada !!!")
@@ -116,7 +116,7 @@ def gerar_5401_por_adm_175(adm ,  data, id):
             documento = documento_5401.retornar_arquivo_5401_completo()
             ajustador = XML_5401(documento)
             # ajustador.ajustar_arquivo_5401()
-            ajustador.reescrever_xml(f"{adm}_{data.replace('-' , '')}.xml")
+            ajustador.reescrever_xml(f"{adm}_{data.replace('-' , '')}_175.xml")
             print (id)
             TaskService().finish_task(id)
 
