@@ -346,16 +346,9 @@ class XML_5401:
         # # dados = pd.read_excel('cota_unica.xlsx' ,  dtype=str)
 
         cnpj_fundo = fundo.attrib.get("cnpjFundo", "")
-                   
-        lista_pco =  self.ajuste_pco(fundo)
-        
-        #remover cotistas pcos
-
+        lista_pco = self.ajuste_pco(fundo)
         self.remover_cotistas(fundo , lista_pco)
-
         self.adicionar_pco_consolidado(lista_pco , fundo)
-
-            
         self.ajuste_elemento_fundos(fundo)
         self.ajuste_quantidade_pl_fundos(fundo)
 
@@ -403,14 +396,6 @@ class XML_5401:
             executor.map(self.job_ajuste_fundos_pco , fundos)
 
 
-
-        # file_name = f"arquivos_ajustados/{self.filename}.xml"
-        
-        
-        # self.reescrever_xml(file_name)
-
-
-
     def ajustar_cotas(self):  
         print ("ajustando cotas")      
         cotas = self.root.findall(".//cota")
@@ -418,13 +403,11 @@ class XML_5401:
             executor.map(self.job_ajuste_cota , cotas)
 
 
-
     def ajustar_cotistas(self):
         print ("ajustando cotistas")
         cotistas = self.root.findall(".//cotista")
         with ThreadPoolExecutor() as executor:
             executor.map(self.job_ajuste_cotista , cotistas)
-
 
 
     def gerar_arquivo_validacao(self):
@@ -441,12 +424,13 @@ class XML_5401:
             executor.map(self.ajuste_quantidade_pl_fundos , fundos)
 
 
-        
-    
-    
     def ajustar_arquivo_5401(self):
-
-        self.ajustar_pcos()
-        self.ajustar_qtd_cotista_elemento_fundos()
-        self.ajustar_pl_fundos()
+        check_tipo_arquivo  = self.root.findall('.//classe')
+        if len(check_tipo_arquivo) == 0 :
+            self.ajustar_pcos()
+            self.ajustar_qtd_cotista_elemento_fundos()
+            self.ajustar_pl_fundos()
+        else:
+            pass
+            # steps para validar o 5401 com base em outros adms
         

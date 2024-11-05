@@ -59,12 +59,12 @@ class ServiceGeracao5401(ServiceBase):
 
     def gerar_5401_por_adm(self,adm):
         id = TaskService().start_task(f"Geração 5401 {adm}")
-        gerar_5401_por_adm.delay(adm , self.data , id)
+        gerar_5401_por_adm.delay(adm , self.data , id , self.tipo)
 
 
     def gerar_5401_por_adm_175(self,adm):
         id = TaskService().start_task(f"Geração 5401 175 {adm}")
-        gerar_5401_por_adm_175.delay(adm , self.data , id)
+        gerar_5401_por_adm_175.delay(adm , self.data , id, self.tipo)
 
     def gerar_5401(self ,adm):
         if self.tipo == "175":

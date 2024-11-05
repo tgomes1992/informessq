@@ -49,7 +49,7 @@ def job_criar_fundos_json(cnpj):
 
 
 @celery_app.task(name="GERAR 5401")
-def gerar_5401_por_adm(adm ,  data, id):
+def gerar_5401_por_adm(adm ,  data, id ,  tipo):
     '''adm precisa ser uma string com o cnpj com 14 digitos do adm'''
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
@@ -65,7 +65,7 @@ def gerar_5401_por_adm(adm ,  data, id):
         df = pd.DataFrame.from_dict(fundos_por_adm)
         cnpjs = list(df['cnpj'].drop_duplicates())
 
-        documento_5401 = Documento5401(adm , data , "normal" )
+        documento_5401 = Documento5401(adm , data , tipo)
         criacao_fundos = partial(job_criar_fundos, documento_5401=documento_5401 ,  data=data)
 
         try:
@@ -87,7 +87,7 @@ def gerar_5401_por_adm(adm ,  data, id):
 
 
 @celery_app.task(name="GERAR 5401 175")
-def gerar_5401_por_adm_175(adm ,  data, id):
+def gerar_5401_por_adm_175(adm ,  data, id ,tipo ):
     '''adm precisa ser uma string com o cnpj com 14 digitos do adm'''
     app = Flask(__name__)
     app.config['MONGO_URI'] = os.environ.get('DB_URI_LOCAL')
@@ -105,7 +105,7 @@ def gerar_5401_por_adm_175(adm ,  data, id):
             df = pd.DataFrame.from_dict(fundos_por_adm)
             cnpjs = list(df['cnpj'].drop_duplicates())
 
-            documento_5401 = Documento5401(adm , data , '175' )
+            documento_5401 = Documento5401(adm , data , tipo )
             criacao_fundos = partial(job_criar_fundos_175, documento_5401=documento_5401 ,  data=data)
 
             print ("geração iniciada !!!")
@@ -115,7 +115,7 @@ def gerar_5401_por_adm_175(adm ,  data, id):
                 executor.map(criacao_fundos, cnpjs)
             documento = documento_5401.retornar_arquivo_5401_completo()
             ajustador = XML_5401(documento)
-            # ajustador.ajustar_arquivo_5401()
+            ajustador.ajustar_arquivo_5401()
             ajustador.reescrever_xml(f"{adm}_{data.replace('-' , '')}_175.xml")
             print (id)
             TaskService().finish_task(id)

@@ -7,7 +7,6 @@ from InformesLegais.Services.ServiceGeracao5401 import ServiceGeracao5401
 geracao_informes_bp = Blueprint('geracao_informes', __name__ , url_prefix='/geracao')
 
 
-
 @geracao_informes_bp.route("/gerar_arquivo")
 def gerar_arquivo_5401():
     form = SolicitarArquivo5401()
@@ -27,9 +26,6 @@ def gerar_informe_5401():
 
         geracao = ServiceGeracao5401(adm , data , tipo)
         geracao.gerar_5401(adm)
-
-
-
         flash(f"Arquivo enviado para geração" ,  'succes')
 
     except Exception as e:
