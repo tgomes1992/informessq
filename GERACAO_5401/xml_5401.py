@@ -530,7 +530,7 @@ class XML_5401:
             self.ajustar_qtd_cotista_elemento_fundos()
             self.ajustar_pl_fundos()
         else:
-            self.ajuste_pco_175()
+            self.ajustar_pcos_175()
             self.ajustar_qtd_cotista_elemento_classes()
             self.ajustar_pl_classes()
 
