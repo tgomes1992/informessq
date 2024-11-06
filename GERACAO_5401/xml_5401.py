@@ -93,17 +93,6 @@ class XML_5401:
                     cotas.append(cota)
         df = pd.DataFrame.from_dict(cotas)
         return df.drop_duplicates()
-    
-
-    # def change_cotistas_job(self , fundo):
-    #     cnpj_fundos = fundo.attrib.get("cnpjFundo")
-    #     cotistas = fundo.findall(".//cotista")
-    #     for cotista in cotistas:             
-    #          if cotista.attrib.get("identificacao") in self.lista_cotistas:
-    #               tp_pessoa = self.df_cotistas[self.df_cotistas['identificacao'] ==  str(cotista.attrib.get("identificacao"))].to_dict("records")[0]
-    #               cotista.set("tipoPessoa" , str(tp_pessoa['tipoPessoa']))
-    #               cotista.set("classificacao" , str(tp_pessoa['classificacao']))
-
 
     def ajuste_elemento_fundos(self, fundo):
         '''ajuste de quantidade de cotistas'''
@@ -111,8 +100,7 @@ class XML_5401:
                 cotistas = item
                 qtd_cotistas = len(cotistas)
         fundo.set('quantidadeCotistas' , str(qtd_cotistas) )
-        
-        '''ajuste da quantidade de cotas e pl'''
+
 
 
     def ajuste_elemento_cotista(self):       
@@ -136,25 +124,6 @@ class XML_5401:
             return string_base
 
 
-
-    def ajuste_quantidade_pl_fundos(self , fundo):
-        cnpj_fundo = fundo.attrib.get("cnpjFundo", "")
-        print (cnpj_fundo)
-        cotas_fundo = round(float(fundo.attrib.get("quantidadeCotas")), 2)
-        total_valor_cotas = 0
-        valor_total_cotistas = 0
-        cotistas = fundo.findall(".//cotista")
-        for cotista in cotistas:
-            # print (cotista)
-            cotas = cotista.findall(".//cota")
-            for cota in cotas:
-                qtde_cotas = float(cota.attrib.get("qtdeCotas"))
-                valor_cota = float(cota.attrib.get("valorCota"))
-                total_valor_cotas += qtde_cotas
-                valor_total_cotistas += qtde_cotas * valor_cota    
-
-        fundo.set("plFundo" , self.ajuste_pl_fundo(str(round(valor_total_cotistas,2))))              
-        fundo.set("quantidadeCotas" , self.ajuste_pl_fundo(str(round(total_valor_cotas,10))))
 
 
 
@@ -222,10 +191,42 @@ class XML_5401:
 
         except Exception as e :
             print (e)
-            
 
+    def ajuste_pco_175(self, fundo):
+        pco = []
+        try:
+            fundo_parse = ET.fromstring(ET.tostring(fundo))
+            cotistas = fundo_parse.findall(".//cotista")
+            for cotista in cotistas:
+                try:
+                    string_cotista = cotista.attrib.get("identificacao", "")
+                    tipo_pessoa = cotista.attrib.get("tipoPessoa", "")
+                    classificacao = cotista.attrib.get("classificacao", "")
+                    cotas = cotista.findall(".//cota")
+
+                    cotas_df = self.cotas_to_dataframe(cotas)
+
+                    if self.valida_pco(string_cotista):
+                        corpo_pco = {
+                            "identificacao": string_cotista,
+                            "tipoPessoa": tipo_pessoa,
+                            "classificacao": classificacao,
+                            "cotas": cotas_df.to_dict('records')
+                        }
+                        pco.append(corpo_pco)
+                    else:
+                        continue
+                except Exception as e:
+                    print(e)
+
+            return pco
+
+        except Exception as e:
+            print(e)
 
     def remover_cotistas(self, fundo , cotistas):
+        '''server para fundo ou classe'''
+
         try:
             investidores = fundo.find(".//cotistas")
             cotistas_tag = investidores.findall(".//cotista")
@@ -327,7 +328,7 @@ class XML_5401:
                 
         new_df = df.groupby(['tipoCota' ,  "valorCota"]).sum().reset_index()
         
-        ncotas = new_df.to_xml(attr_cols=['tipoCota','qtdeCotas','valorCota'] ,  
+        ncotas = new_df.to_xml(attr_cols=['tipoCota','qtdeCotas','valorCota'] ,
                               index=False ,root_name="cotas" ,row_name='cota', pretty_print=False)
         
 
@@ -338,9 +339,31 @@ class XML_5401:
         cotistas_elemento = fundo.find(".//cotistas")
         
         cotistas_elemento.append(cotista)
-   
-   
-   
+
+    def adicionar_pco_consolidado_175(self, lista_pco, fundo):
+        main = []
+        cotas = [investidor['cotas'] for investidor in lista_pco]
+
+        cotista = self.criar_cotistas_unico({"cpfcnpjInvestidor": "02332886000104"})
+
+        for cota in cotas:
+            for item in cota:
+                main.append(item)
+
+        df = pd.DataFrame.from_dict(main)
+
+        new_df = df.groupby(['tipoCota', "valorCota"]).sum().reset_index()
+
+        ncotas = new_df.to_xml(attr_cols=['tipoCota', 'qtdeCotas', 'valorCota',  'subclasse'],
+                               index=False, root_name="cotas", row_name='cota', pretty_print=False)
+
+        cotas_elemento = ET.fromstring(ncotas)
+
+        cotista.append(cotas_elemento)
+
+        cotistas_elemento = fundo.find(".//cotistas")
+
+        cotistas_elemento.append(cotista)
 
     def job_ajuste_fundos_pco(self, fundo):
         # # dados = pd.read_excel('cota_unica.xlsx' ,  dtype=str)
@@ -351,6 +374,21 @@ class XML_5401:
         self.adicionar_pco_consolidado(lista_pco , fundo)
         self.ajuste_elemento_fundos(fundo)
         self.ajuste_quantidade_pl_fundos(fundo)
+
+
+
+
+    def job_ajuste_fundos_pco_175(self, fundo):
+        # # dados = pd.read_excel('cota_unica.xlsx' ,  dtype=str)
+
+        cnpj_fundo = fundo.attrib.get("cnpjFundo", "")
+
+        lista_pco = self.ajuste_pco_175(fundo)
+        self.remover_cotistas(fundo , lista_pco)
+        self.adicionar_pco_consolidado(lista_pco , fundo)
+        self.ajuste_elemento_fundos(fundo)
+        self.ajuste_quantidade_pl_fundos(fundo)
+
 
 
 
@@ -373,9 +411,8 @@ class XML_5401:
         print ("reescrevendo arquivo")
         xml_string = minidom.parseString(ET.tostring(self.root)).toprettyxml()
         xml_string = "\n".join(line for line in xml_string.split("\n") if line.strip())
-
         file_name = path
-        
+
         with open(f'{file_name}', "w") as file:
             file.write(xml_string)
         
@@ -383,6 +420,13 @@ class XML_5401:
     def ajustar_qtd_cotista_elemento_fundos(self):
         print ("AJUSTANDO QTDCOTISAS")
         fundos = self.root.findall(".//fundo")
+        with ThreadPoolExecutor() as executor:
+            executor.map(self.ajuste_elemento_fundos , fundos)
+
+
+    def ajustar_qtd_cotista_elemento_classes(self):
+        print ("AJUSTANDO QTDCOTISAS CLASSES")
+        fundos = self.root.findall(".//classe")
 
         with ThreadPoolExecutor() as executor:
             executor.map(self.ajuste_elemento_fundos , fundos)
@@ -396,19 +440,25 @@ class XML_5401:
             executor.map(self.job_ajuste_fundos_pco , fundos)
 
 
+    def ajustar_pcos_175(self):
+        print ("AJUSTANDO PCOS 175 ")
+        classes = self.root.findall(".//classe")
+
+        with ThreadPoolExecutor() as executor:
+            executor.map(self.job_ajuste_fundos_pco_175 , classes)
+
+
     def ajustar_cotas(self):  
         print ("ajustando cotas")      
         cotas = self.root.findall(".//cota")
         with ThreadPoolExecutor() as executor:
             executor.map(self.job_ajuste_cota , cotas)
 
-
     def ajustar_cotistas(self):
         print ("ajustando cotistas")
         cotistas = self.root.findall(".//cotista")
         with ThreadPoolExecutor() as executor:
             executor.map(self.job_ajuste_cotista , cotistas)
-
 
     def gerar_arquivo_validacao(self):
         with pd.ExcelWriter("validacao.xlsx") as writer:
@@ -417,11 +467,60 @@ class XML_5401:
             self.get_cotistas().to_excel(writer, sheet_name="cotistas", index=False)
 
 
+
+
     def ajustar_pl_fundos(self):
         fundos = self.root.findall(".//fundo")
         print (len(fundos))
         with ThreadPoolExecutor() as executor:
             executor.map(self.ajuste_quantidade_pl_fundos , fundos)
+
+    def ajuste_quantidade_pl_fundos(self , fundo):
+        cnpj_fundo = fundo.attrib.get("cnpjFundo", "")
+        print (cnpj_fundo)
+        cotas_fundo = round(float(fundo.attrib.get("quantidadeCotas")), 2)
+        total_valor_cotas = 0
+        valor_total_cotistas = 0
+        cotistas = fundo.findall(".//cotista")
+        for cotista in cotistas:
+            # print (cotista)
+            cotas = cotista.findall(".//cota")
+            for cota in cotas:
+                qtde_cotas = float(cota.attrib.get("qtdeCotas"))
+                valor_cota = float(cota.attrib.get("valorCota"))
+                total_valor_cotas += qtde_cotas
+                valor_total_cotistas += qtde_cotas * valor_cota
+
+        fundo.set("plFundo" , self.ajuste_pl_fundo(str(round(valor_total_cotistas,2))))
+        fundo.set("quantidadeCotas" , self.ajuste_pl_fundo(str(round(total_valor_cotas,10))))
+
+
+    def ajustar_pl_classes(self):
+        print ("AJUSTANDO PL DAS CLASSES")
+        classes = self.root.findall(".//classe")
+        print (len(classes))
+        with ThreadPoolExecutor() as executor:
+            executor.map(self.ajuste_quantidade_pl_classes , classes)
+
+
+    def ajuste_quantidade_pl_classes(self , classe):
+        cnpj_fundo = classe.attrib.get("cnpjFundo", "")
+        print (cnpj_fundo)
+        cotas_fundo = round(float(classe.attrib.get("quantidadeCotas")), 2)
+        total_valor_cotas = 0
+        valor_total_cotistas = 0
+        cotistas = classe.findall(".//cotista")
+        for cotista in cotistas:
+            # print (cotista)
+            cotas = cotista.findall(".//cota")
+            for cota in cotas:
+                qtde_cotas = float(cota.attrib.get("qtdeCotas"))
+                valor_cota = float(cota.attrib.get("valorCota"))
+                total_valor_cotas += qtde_cotas
+                valor_total_cotistas += qtde_cotas * valor_cota
+
+        classe.set("plFundo" , self.ajuste_pl_fundo(str(round(valor_total_cotistas,2))))
+        classe.set("quantidadeCotas" , self.ajuste_pl_fundo(str(round(total_valor_cotas,10))))
 
 
     def ajustar_arquivo_5401(self):
@@ -431,6 +530,7 @@ class XML_5401:
             self.ajustar_qtd_cotista_elemento_fundos()
             self.ajustar_pl_fundos()
         else:
-            pass
-            # steps para validar o 5401 com base em outros adms
-        
+            self.ajuste_pco_175()
+            self.ajustar_qtd_cotista_elemento_classes()
+            self.ajustar_pl_classes()
+

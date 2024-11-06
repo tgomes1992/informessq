@@ -25,7 +25,15 @@ def gerar_informe_5401():
 
 
         geracao = ServiceGeracao5401(adm , data , tipo)
-        geracao.gerar_5401(adm)
+
+        if tipo == "175":
+            geracao.gerar_5401_por_adm_175(adm)
+        else:
+            geracao.gerar_5401_por_adm(adm)
+
+        # geracao.gerar_5401(adm)
+
+
         flash(f"Arquivo enviado para geração" ,  'succes')
 
     except Exception as e:
